@@ -874,5 +874,3 @@ document.head.appendChild(style);
 // Replace updateTokenUI with updateXpUI
 updateXpUI();
 setTimeout(updateXpUI, 0);
-
-});
