@@ -445,15 +445,15 @@ In-depth Details
 `;
 
         const analysis = await cohereQuery(analysisPrompt, 650);
-        // Custom styled box with equal margin and no markdown symbols
+        // Upgraded UI: more attractive background, but keep alignment/margin/text as before
         analysisBox.innerHTML = `
     <div style="
         margin: 0 auto;
         max-width: 95%;
-        background: #f8f9fa;
+        background: linear-gradient(135deg, #e3f0ff 0%, #f9f6ff 100%);
         padding: 22px 32px 22px 32px;
         border-radius: 12px;
-        border: 1px solid #e0e0e0;
+        border: 1px solid #b6c7e6;
         box-sizing: border-box;
         text-align: justify;
         font-family: inherit;
@@ -463,6 +463,7 @@ In-depth Details
         display: flex;
         flex-direction: column;
         align-items: center;
+        box-shadow: 0 6px 24px rgba(80,120,200,0.10);
     ">
         <div style="
             width: 100%;
