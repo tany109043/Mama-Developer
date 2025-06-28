@@ -539,7 +539,11 @@ In-depth Details
     </div>
 `;
             // checklist for each module (only module names, no "Section 1" etc.)
-            const modulesList = modulesBox.querySelector('#modulesList');
+            // FIX: Use the correct parent for modulesList
+            const modulesList = modulesBox.querySelector
+                ? modulesBox.querySelector('#modulesList')
+                : document.querySelector('#modulesList');
+            modulesList.innerHTML = ''; // Clear any previous content
             mods.forEach((m, i) => {
                 // Remove "Section X:" or "Section X -" or similar prefixes
                 let name = m.innerText.trim().replace(/^Section\s*\d+\s*[:-]?\s*/i, '');
@@ -555,9 +559,10 @@ In-depth Details
             });
 
             // action buttons
-            const btnRow = document.createElement('div');
-            btnRow.style.cssText = 'margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;';
-            modulesBox.querySelector('#modulesBtnRow').appendChild(btnRow);
+            const btnRow = modulesBox.querySelector
+                ? modulesBox.querySelector('#modulesBtnRow')
+                : document.querySelector('#modulesBtnRow');
+            btnRow.innerHTML = ''; // Clear any previous content
 
             const projBtn = document.createElement('button');
             projBtn.textContent = '🎯 Suggest Projects';
