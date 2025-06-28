@@ -270,9 +270,7 @@
     const mini = document.createElement('div');
     mini.style.cssText = [
         'display:none',
-        'position:absolute', // positioned relative to parent or button
-        'margin-top:8px',
-        'margin-left:0px',
+        'position:absolute',                 // absolute for dynamic positioning
         'width:260px',
         'padding:12px',
         'background:#fff',
