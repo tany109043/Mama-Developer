@@ -2,7 +2,7 @@
 // 📘 Udemy AI Bookmarklet Tool — ARRANGED VERSION
 // (with 💡 Project Evaluator)
 // ==================================================
-(function () {
+(async function () {
     if (document.getElementById('udemyAnalyzerBtn')) return;
     if (!location.hostname.includes('udemy.com')) {
         alert('⚠️ Open this on a Udemy course page.');
