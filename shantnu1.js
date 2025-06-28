@@ -1,4 +1,3 @@
-
 // ==================================================
 // 📘 Udemy AI Bookmarklet Tool — ARRANGED VERSION
 // (with 💡 Project Evaluator)
