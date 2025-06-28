@@ -425,8 +425,6 @@ Course Title: ${title}
 Course URL: ${url}
 
 TEMPLATE
-Modules (up to 8)
-- Module Title: Key skill or topic (1 sentence, max 15 words)
 
 Drawbacks (up to 3, max 12 words each)
 - Drawback 1
