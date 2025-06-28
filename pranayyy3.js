@@ -449,31 +449,27 @@ In-depth Details
         analysisBox.innerHTML = `
 <div style="
     margin: 30px auto;
-    max-width: 880px;
+    max-width: 960px;
     background: linear-gradient(120deg, #f8fafc 60%, #e3f0ff 100%);
-    padding: 36px 42px;
+    padding: 40px 48px;
     border-radius: 20px;
     border: 1.5px solid #d0e2ff;
     box-shadow: 0 8px 28px rgba(80,120,200,0.13);
     font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
-    font-size: 17px;
-    line-height: 1.85;
+    font-size: 18px;
+    line-height: 1.9;
     color: #1a237e;
     display: flex;
     flex-direction: column;
     align-items: stretch;
     transition: box-shadow 0.2s;
 ">
-    <div style="
-        max-width: 100%;
-        text-align: left;
-        word-break: break-word;
-    ">
+    <div style="max-width: 100%; word-break: break-word;">
         <div style="
             font-weight: 700;
             text-align: center;
             margin-bottom: 28px;
-            font-size: 24px;
+            font-size: 26px;
             letter-spacing: 0.5px;
             color: #0d47a1;
         ">
@@ -486,22 +482,24 @@ In-depth Details
 
         <div style="
             background: #e3f2fd;
-            padding: 24px 26px;
+            padding: 30px 34px;
             border-radius: 14px;
             border-left: 6px solid #42a5f5;
         ">
             ${analysis
-                .replace(/[#*]/g, '')
-                .replace(/\n{2,}/g, '</p><p>')      // Convert paragraph breaks
-                .replace(/\n/g, ' ')                // Flatten remaining line breaks
-                .replace(/^/, '<p>')                // Wrap in paragraph tag
-                .replace(/$/, '</p>')               // Close last paragraph
+                .replace(/#+\s*Drawbacks/i, '<div style="font-weight:bold;font-size:20px;color:#0d47a1;margin-top:20px;">Drawbacks</div><br>')
+                .replace(/#+\s*Learning Outcomes/i, '<div style="font-weight:bold;font-size:20px;color:#0d47a1;margin-top:20px;">Learning Outcomes</div><br>')
+                .replace(/#+\s*Modules.*/i, '') // remove Modules section entirely
+                .replace(/[#*]/g, '') // remove any lingering markdown
+                .replace(/\n{2,}/g, '</p><p>') // paragraph breaks
+                .replace(/\n/g, ' ') // single line breaks
+                .replace(/^/, '<p>') // start first paragraph
+                .replace(/$/, '</p>') // end last paragraph
             }
         </div>
     </div>
 </div>
 `;
-
         /***** 2️⃣ Modules List *****/
         const mods = [...document.querySelectorAll('div[data-purpose="curriculum-section-container"] h3')];
         if (!mods.length) {
