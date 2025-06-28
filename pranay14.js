@@ -313,17 +313,24 @@ In-depth Details
 
                     overlay.innerHTML = '<h2>📝 Generating quiz…</h2>';
 
+                    // Improved prompt for better formatting and answer marking
                     const qPrompt =
-                        `You are an advanced technical‑course quiz generator.\n` +
-                        `Generate EXACTLY 5 high‑quality MCQs based ONLY on these modules:\n` +
-                        `${chosen.join('\n')}\n\n` +
-                        `Rules:\n` +
-                        `• 2 easy, 2 medium, 1 hard\n` +
-                        `• 4 options (A–D); exactly ONE correct\n` +
-                        `• Wrap the correct option in <span class="answer"></span>\n` +
-                        `• Format strictly:\n` +
-                        `Q1. <question>\nA) <opt>\nB) <opt>\nC) <opt>\nD) <opt>\n\n` +
-                        `Begin:`;
+                        `You are an advanced technical-course quiz generator.
+Generate EXACTLY 5 high-quality MCQs based ONLY on these modules:
+${chosen.join('\n')}
+
+Rules:
+• 2 easy, 2 medium, 1 hard
+• 4 options (A–D); exactly ONE correct
+• Mark the correct option with [CORRECT] at the end of the option line
+• Format strictly:
+Q1. <question>
+A) <option>
+B) <option>
+C) <option>
+D) <option>
+
+Begin:`;
 
                     try {
                         const txt = await cohereQuery(qPrompt, 650);
@@ -340,35 +347,28 @@ In-depth Details
                         document.getElementById('closeQuiz').onclick = () => (overlay.style.display = 'none');
                         const form = overlay.querySelector('#quizForm');
 
-                        /* --- split Cohere output into 5 blocks --- */
-                        const blocks = txt.match(/(?:Q?\d+[.)])[\s\S]*?(?=(?:Q?\d+[.)])|$)/g) || [];
+                        // Parse the Cohere output for 5 questions
+                        const blocks = txt.split(/Q\d+\./g).filter(Boolean).slice(0, 5);
 
                         const correctMap = [];
                         blocks.forEach((blk, qi) => {
+                            // Extract question and options
                             const lines = blk.trim().split('\n').filter(Boolean);
+                            if (lines.length < 5) return; // skip malformed
 
-                            /* NEW — fallback for “Answer: X” format */
-                            const answerLetter = (blk.match(/Answer\s*[:\-]?\s*([A-D])/i) || [])[1]?.toUpperCase() || null;
-
-                            const qLine = lines.shift();
+                            const qLine = lines[0].replace(/^\s*|\s*$/g, '');
                             const qDiv = document.createElement('div');
                             qDiv.style.marginBottom = '20px';
-                            qDiv.innerHTML = `<b>${qLine.replace(/^Q?\d+[.)]\s*/, '')}</b><br><br>`;
+                            qDiv.innerHTML = `<b>${qLine}</b><br><br>`;
 
-                            /* extract A‑D */
-                            const options = lines.slice(0, 4).map((line) => {
-                                const letter = line.trim().charAt(0).toUpperCase();          // A/B/C/D
-                                const isCorrect = /class=["']answer["']/.test(line) ||          // span‑tag way
-                                    (answerLetter && letter === answerLetter);     // Answer: X fallback
-                                const text = line
-                                    .replace(/<span class=["']answer["']>/, '')
-                                    .replace('</span>', '')
-                                    .replace(/^[A-Da-d][).]\s*/, '')
-                                    .trim();
+                            // Extract options and find correct
+                            const options = lines.slice(1, 5).map((line) => {
+                                const isCorrect = /\[CORRECT\]/i.test(line);
+                                const text = line.replace(/\[CORRECT\]/i, '').replace(/^[A-Da-d][).]\s*/, '').trim();
                                 return { text, isCorrect };
                             });
 
-                            /* shuffle so correct option isn’t always fixed */
+                            // Shuffle options
                             for (let i = options.length - 1; i > 0; i--) {
                                 const j = Math.floor(Math.random() * (i + 1));
                                 [options[i], options[j]] = [options[j], options[i]];
@@ -394,7 +394,8 @@ In-depth Details
                             form.appendChild(qDiv);
                         });
 
-                        overlay.querySelector('#submitQuiz').onclick = () => {
+                        overlay.querySelector('#submitQuiz').onclick = (e) => {
+                            e.preventDefault();
                             let right = 0;
                             correctMap.forEach((correctLabel, qi) => {
                                 const chosen = form.querySelector(`input[name="q${qi}"]:checked`);
