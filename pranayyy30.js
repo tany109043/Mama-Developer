@@ -475,6 +475,7 @@ In-depth Details
                 .replace(/^TEMPLATE$/im, '<b>TEMPLATE</b>')
                 .replace(/^(Drawbacks.*)$/im, '<b>$1</b>')
                 .replace(/^(Learning Outcomes.*)$/im, '<b>$1</b>')
+                .replace(/^(In-depth Details.*)$/im, '<b>$1</b>')
                 .replace(/\n/g, '<br>')
                 .replace(/[#*]/g, '')
             }
