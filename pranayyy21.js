@@ -490,63 +490,12 @@ In-depth Details
         /***** 2️⃣ Modules List *****/
         const mods = [...document.querySelectorAll('div[data-purpose="curriculum-section-container"] h3')];
         if (!mods.length) {
-            modulesBox.innerHTML = `
-    <div style="
-        margin: 0 auto;
-        max-width: 95%;
-        background: linear-gradient(135deg, #f9f6ff 0%, #e3f0ff 100%);
-        padding: 18px 32px;
-        border-radius: 10px;
-        border: 1px solid #b6c7e6;
-        box-sizing: border-box;
-        font-family: inherit;
-        font-size: 15px;
-        line-height: 1.7;
-        color: #222;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        box-shadow: 0 4px 18px rgba(80,120,200,0.10);
-    ">
-        <b style="display:block;text-align:center;font-size:18px;margin-bottom:12px;">📂 Modules</b>
-        <div style="width:100%;max-width:500px;text-align:left;">
-            ❌ Could not detect modules.
-        </div>
-    </div>
-`;
+            modulesBox.innerHTML = '<b>📂 Modules</b><br><br>❌ Could not detect modules.';
         } else {
-            modulesBox.innerHTML = `
-    <div style="
-        margin: 0 auto;
-        max-width: 95%;
-        background: linear-gradient(135deg, #f9f6ff 0%, #e3f0ff 100%);
-        padding: 18px 32px;
-        border-radius: 10px;
-        border: 1px solid #b6c7e6;
-        box-sizing: border-box;
-        font-family: inherit;
-        font-size: 15px;
-        line-height: 1.7;
-        color: #222;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        box-shadow: 0 4px 18px rgba(80,120,200,0.10);
-    ">
-        <b style="display:block;text-align:center;font-size:18px;margin-bottom:12px;">📂 Modules</b>
-        <div id="modulesList" style="width:100%;max-width:500px;text-align:left;"></div>
-        <div id="modulesBtnRow"></div>
-    </div>
-`;
-            // checklist for each module (only module names, no "Section 1" etc.)
-            // FIX: Use the correct parent for modulesList
-            const modulesList = modulesBox.querySelector
-                ? modulesBox.querySelector('#modulesList')
-                : document.querySelector('#modulesList');
-            modulesList.innerHTML = ''; // Clear any previous content
+            modulesBox.innerHTML = '<b>📂 Modules</b><br><br>';
+
+            // checklist for each module
             mods.forEach((m, i) => {
-                // Remove "Section X:" or "Section X -" or similar prefixes
-                let name = m.innerText.trim().replace(/^Section\s*\d+\s*[:-]?\s*/i, '');
                 const key = 'udemyMod-' + i;
                 const wrap = document.createElement('label');
                 wrap.style.cssText = 'display:block;margin:4px 0;cursor:pointer;';
@@ -554,15 +503,14 @@ In-depth Details
                 chk.type = 'checkbox';
                 chk.checked = localStorage.getItem(key) === '1';
                 chk.onchange = () => localStorage.setItem(key, chk.checked ? '1' : '0');
-                wrap.append(chk, ' ', name);
-                modulesList.appendChild(wrap);
+                wrap.append(chk, ' ', m.innerText.trim());
+                modulesBox.appendChild(wrap);
             });
 
             // action buttons
-            const btnRow = modulesBox.querySelector
-                ? modulesBox.querySelector('#modulesBtnRow')
-                : document.querySelector('#modulesBtnRow');
-            btnRow.innerHTML = ''; // Clear any previous content
+            const btnRow = document.createElement('div');
+            btnRow.style.cssText = 'margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;';
+            modulesBox.appendChild(btnRow);
 
             const projBtn = document.createElement('button');
             projBtn.textContent = '🎯 Suggest Projects';
