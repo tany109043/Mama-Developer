@@ -108,7 +108,10 @@
     panel.id = 'udemyAnalysisPanel';
     panel.style.cssText = [
         'display:none', 'position:fixed', 'bottom:90px', 'right:20px',
-        'width:420px', 'height:620px', 'background:#fff', 'color:#000',
+        'width:420px', 'height:620px',
+        // Distinct, soft, but harmonious gradient for the OUTER container
+        'background: linear-gradient(135deg, #f7f3ff 0%, #e3f7fa 100%)',
+        'color:#000',
         'border:1px solid #ccc', 'border-radius:12px',
         'box-shadow:0 4px 14px rgba(0,0,0,.3)',
         'font-family:sans-serif', 'font-size:14px', 'line-height:1.45',
