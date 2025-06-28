@@ -201,66 +201,41 @@
 
         try {
             /***** 1️⃣ Course Analysis *****/
-            const analysisPrompt = `You are a professional course analyst.
-
-Your task is to analyze the following Udemy course and provide an in-depth, structured textual summary. The output must use plain text formatting — no Markdown, no bullet points, and no special symbols. The layout should have clean visual alignment, and text blocks should have equal left and right margins. Use approximately 100–120 characters per line for neat readability.
-
-Course Title: ${title}  
+            const analysisPrompt = `You are an expert educational analyst.
+Study the Udemy course below and reply in the EXACT template that follows—no preamble or extras.
+Course Title: ${title}
 Course URL: ${url}
 
-Return the analysis using the EXACT following format:
+TEMPLATE
+Modules (up to 8)
+- Module Title: Key skill or topic (1 sentence, max 15 words)
 
-===============================================================
-                         COURSE ANALYSIS REPORT
-===============================================================
+Drawbacks (up to 3, max 12 words each)
+- Drawback 1
+- Drawback 2
+- Drawback 3
 
-Course Title: [Insert Title Here]  
-Instructor(s): [Name(s)]  
-Skill Level: [Beginner / Intermediate / Advanced]  
-Total Duration: [xx hours]  
-Last Updated: [Month, Year]  
-Language: [Primary language]
+Learning Outcomes (5, max 12 words each)
+1. Outcome 1
+2. Outcome 2
+3. Outcome 3
+4. Outcome 4
+5. Outcome 5
 
----------------------------------------------------------------
-Modules Overview
----------------------------------------------------------------
-[Module Title 1]  
-[Detailed 2–3 sentence summary of the key concepts and skills taught in this module.]
-
-[Module Title 2]  
-[Detailed 2–3 sentence summary of the key concepts and skills taught in this module.]
-
-...[Up to 8 modules]
-
----------------------------------------------------------------
-Drawbacks
----------------------------------------------------------------
-1. [Specific, factual limitation #1 — max 20 words]  
-2. [Specific, factual limitation #2 — max 20 words]  
-3. [Specific, factual limitation #3 — max 20 words]
-
----------------------------------------------------------------
-Learning Outcomes
----------------------------------------------------------------
-By the end of this course, students will be able to:
-
-1. [Concrete learning goal #1 — up to 20 words]  
-2. [Concrete learning goal #2 — up to 20 words]  
-3. [Concrete learning goal #3 — up to 20 words]  
-4. [Concrete learning goal #4 — up to 20 words]  
-5. [Concrete learning goal #5 — up to 20 words]
-
-===============================================================
-
-Rules:
-- Use plain, human-readable language (no fluff or promotional language)  
-- Maintain clear alignment and padding on all lines  
-- Keep the total response under 350 words  
-- Do not add summaries, suggestions, or extra formatting
+In-depth Details
+- Provide a concise but thorough summary of the course content, structure, teaching approach, and any unique features. Use only information visible on the course page. Do not add conclusions or advice. Do not use any symbols like # or * in your response. Use plain text only. Keep the total response under 220 words. Ensure the text is well-aligned and easy to read.
 `;
 
-            const analysis = await cohereQuery(analysisPrompt, 500);
-            analysisBox.innerHTML = '<b>📘 Course Analysis:</b><br><br>' + analysis.replace(/\n/g, '<br>');
+            const analysis = await cohereQuery(analysisPrompt, 650);
+            // Custom styled box with equal margin and no markdown symbols
+            analysisBox.innerHTML = `
+    <div style="margin:0 auto;max-width:95%;background:#f8f9fa;padding:22px 24px 22px 24px;border-radius:12px;border:1px solid #e0e0e0;box-sizing:border-box;text-align:left;">
+        <div style="margin:0 auto;max-width:95%;font-family:inherit;font-size:15px;line-height:1.7;color:#222;">
+            <b>Course Analysis</b><br><br>
+            ${analysis.replace(/[#*]/g, '').replace(/\n/g, '<br>')}
+        </div>
+    </div>
+`;
 
             /***** 2️⃣ Modules List *****/
             const mods = [...document.querySelectorAll('div[data-purpose="curriculum-section-container"] h3')];
