@@ -45,7 +45,7 @@
       },
       body: JSON.stringify({
         model: "command",
-        prompt: `This is my transcript: ${transcript}. I only want a specific definition of some component in this transcript. For example, if the lecture is about right joins, generate a definition of right join.`,
+        prompt: `This is my transcript: ${transcript}. Please generate a complete sentence that clearly defines a specific concept or component discussed in this transcript. For example, if the lecture is about right joins, generate a complete definition of right join.`,
         max_tokens: 60,
         temperature: 0.5
       })
