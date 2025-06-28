@@ -445,13 +445,13 @@ In-depth Details
 `;
 
         const analysis = await cohereQuery(analysisPrompt, 650);
-        // Custom styled box with equal margin and no markdown symbols
+        // Custom styled box with improved alignment and highlighted sections, no Modules section
         analysisBox.innerHTML = `
 <div style="
     margin: 30px auto;
-    max-width: 960px;
+    max-width: 900px;
     background: linear-gradient(120deg, #f8fafc 60%, #e3f0ff 100%);
-    padding: 40px 48px;
+    padding: 40px 40px;
     border-radius: 20px;
     border: 1.5px solid #d0e2ff;
     box-shadow: 0 8px 28px rgba(80,120,200,0.13);
@@ -479,23 +479,39 @@ In-depth Details
                 -webkit-text-fill-color: transparent;
             ">📊 Course Analysis</span>
         </div>
-
         <div style="
             background: #e3f2fd;
             padding: 30px 34px;
             border-radius: 14px;
             border-left: 6px solid #42a5f5;
+            margin-left: 0; margin-right: 0;
         ">
-            ${analysis
-                .replace(/#+\s*Drawbacks/i, '<div style="font-weight:bold;font-size:20px;color:#0d47a1;margin-top:20px;">Drawbacks</div><br>')
-                .replace(/#+\s*Learning Outcomes/i, '<div style="font-weight:bold;font-size:20px;color:#0d47a1;margin-top:20px;">Learning Outcomes</div><br>')
-                .replace(/#+\s*Modules.*/i, '') // remove Modules section entirely
-                .replace(/[#*]/g, '') // remove any lingering markdown
-                .replace(/\n{2,}/g, '</p><p>') // paragraph breaks
-                .replace(/\n/g, ' ') // single line breaks
-                .replace(/^/, '<p>') // start first paragraph
-                .replace(/$/, '</p>') // end last paragraph
-            }
+            ${(() => {
+                // Remove Modules section and highlight others
+                let clean = analysis.replace(/[#*]/g, '').replace(/\r/g, '');
+                // Remove Modules section
+                clean = clean.replace(/Modules[\s\S]*?(?=Drawbacks|$)/i, '');
+                // Highlight Drawbacks
+                clean = clean.replace(/Drawbacks[\s\S]*?(?=Learning Outcomes|$)/i, match =>
+                    `<div style="background:#fff3e0;padding:16px 18px;border-radius:8px;font-weight:bold;color:#e65100;margin-bottom:18px;">
+                        ${match.replace(/Drawbacks/i, '<span style="font-size:20px;color:#e65100;">Drawbacks</span>').replace(/\n/g, '<br>')}
+                    </div><br>`
+                );
+                // Highlight Learning Outcomes
+                clean = clean.replace(/Learning Outcomes[\s\S]*?(?=In-depth Details|$)/i, match =>
+                    `<div style="background:#e8f5e9;padding:16px 18px;border-radius:8px;font-weight:bold;color:#1b5e20;margin-bottom:18px;">
+                        ${match.replace(/Learning Outcomes/i, '<span style="font-size:20px;color:#1b5e20;">Learning Outcomes</span>').replace(/\n/g, '<br>')}
+                    </div><br>`
+                );
+                // Highlight In-depth Details
+                clean = clean.replace(/In-depth Details[\s\S]*/i, match =>
+                    `<div style="background:#e1f5fe;padding:16px 18px;border-radius:8px;font-weight:bold;color:#01579b;margin-bottom:0;">
+                        ${match.replace(/In-depth Details/i, '<span style="font-size:20px;color:#01579b;">In-depth Details</span>').replace(/\n/g, '<br>')}
+                    </div>`
+                );
+                // Remove any extra blank lines
+                return clean.replace(/\n{2,}/g, '<br>');
+            })()}
         </div>
     </div>
 </div>
@@ -713,7 +729,7 @@ Format strictly:
     <div style="
         margin: 0 auto;
         max-width: 98%;
-        background: linear-gradient(120deg, #f3e5f5 60%, #e1bee7 100%);
+        background: linear-gradient(120deg,#f3e5f5 60%,#e1bee7 100%);
         padding: 28px 34px 22px 34px;
         border-radius: 18px;
         border: 1.5px solid #ce93d8;
