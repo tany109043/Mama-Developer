@@ -479,14 +479,19 @@ Format strictly:
         align-items: center;
     ">
         <b style="display:block;text-align:center;font-size:18px;margin-bottom:12px;">🚀 Project Ideas:</b>
-        <div style="width:100%;max-width:500px;text-align:left;">
+        <div style="width:100%;max-width:500px;text-align:center;">
             ${txt
                 .replace(/[#*]/g, '')
-                .replace(/\n{2,}/g, '\n') // Remove extra blank lines
+                .replace(/\n{2,}/g, '\n')
                 .split(/\n+/)
-                .map(line => line.trim())
-                .filter(line => line)
-                .map(line => `<div style="margin-bottom:10px;">${line}</div>`)
+                .map(line => {
+                    // Bold the project title (before the colon)
+                    const match = line.match(/^(\d+\.\s*)([^:]+)(:)(.*)$/);
+                    if (match) {
+                        return `<div style="margin-bottom:10px;"><b>${match[1]}${match[2]}</b>${match[3]}${match[4]}</div>`;
+                    }
+                    return `<div style="margin-bottom:10px;">${line}</div>`;
+                })
                 .join('')}
         </div>
     </div>
