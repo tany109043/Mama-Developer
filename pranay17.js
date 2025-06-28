@@ -418,30 +418,34 @@ In-depth Details
         analysisBox.innerHTML = `
     <div style="
         margin: 0 auto;
-        max-width: 95%;
-        background: #f8f9fa;
-        padding: 22px 32px 22px 32px;
-        border-radius: 12px;
-        border: 1px solid #e0e0e0;
-        box-sizing: border-box;
-        text-align: justify;
-        font-family: inherit;
-        font-size: 15px;
-        line-height: 1.7;
-        color: #222;
+        max-width: 98%;
+        background: linear-gradient(120deg, #f8fafc 60%, #e3f0ff 100%);
+        padding: 30px 36px 28px 36px;
+        border-radius: 18px;
+        border: 1.5px solid #d0e2ff;
+        box-shadow: 0 6px 24px rgba(80,120,200,0.10);
+        font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+        font-size: 16px;
+        line-height: 1.8;
+        color: #1a237e;
         display: flex;
         flex-direction: column;
         align-items: center;
+        transition: box-shadow 0.2s;
     ">
         <div style="
             width: 100%;
-            max-width: 700px;
+            max-width: 720px;
             margin: 0 auto;
-            text-align: justify;
+            text-align: left;
             word-break: break-word;
         ">
-            <div style="font-weight:bold;text-align:center;margin-bottom:18px;">Course Analysis</div>
-            ${analysis.replace(/[#*]/g, '').replace(/\n/g, '<br>')}
+            <div style="font-weight:700;text-align:center;margin-bottom:22px;font-size:22px;letter-spacing:0.5px;color:#0d47a1;">
+                <span style="background:linear-gradient(90deg,#42a5f5,#7e57c2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">📊 Course Analysis</span>
+            </div>
+            <div style="margin-bottom:18px;padding:14px 18px;background:#e3f2fd;border-radius:10px;border-left:5px solid #42a5f5;">
+                ${analysis.replace(/[#*]/g, '').replace(/\n/g, '<br>')}
+            </div>
         </div>
     </div>
 `;
@@ -501,123 +505,115 @@ In-depth Details
 
                 overlay.innerHTML = '<h2>📝 Generating quiz…</h2>';
 
-                const qPrompt = `
-You are an advanced technical MCQ generator.
+                const qPrompt =
+                    `You are an advanced technical‑course quiz generator.\n` +
+                    `Generate EXACTLY 5 high‑quality MCQs based ONLY on these modules:\n` +
+                    `${chosen.join('\n')}\n\n` +
+                    `Rules:\n` +
+                    `• 2 easy, 2 medium, 1 hard\n` +
+                    `• 4 options (A–D); exactly ONE correct\n` +
+                    `• Wrap the correct option in <span class="answer"></span>\n` +
+                    `• Format strictly:\n` +
+                    `Q1. <question>\nA) <opt>\nB) <opt>\nC) <opt>\nD) <opt>\n\n` +
+                    `Begin:`;
 
-Generate exactly 5 multiple choice questions (MCQs) based ONLY on these modules:
-${chosen.join('\n')}
+                try {
+                    const txt = await cohereQuery(qPrompt, 650);
+                    overlay.style.display = 'block';
+                    overlay.innerHTML =
+                        '<button id="closeQuiz" style="position:absolute;top:15px;right:20px;font-size:20px;' +
+                        'background:#f44336;color:white;border:none;border-radius:4px;padding:4px 12px;cursor:pointer;">✖</button>' +
+                        '<h2 style="text-align:center;margin:10px 0 20px">📝 Module Quiz</h2>' +
+                        '<form id="quizForm" style="font-size:16px;line-height:1.6"></form>' +
+                        '<button id="submitQuiz" style="margin-top:25px;display:block;background:#4caf50;color:white;' +
+                        'border:none;padding:10px 20px;border-radius:6px;cursor:pointer;margin-left:auto;margin-right:auto;">Show Answers</button>' +
+                        '<div id="scoreBox" style="text-align:center;font-size:18px;margin-top:15px;font-weight:bold;"></div>';
 
-Each question must follow these strict rules:
-• 2 easy, 2 medium, 1 hard
-• 4 options per question: labeled A), B), C), D)
-• Wrap only the correct answer with <span class="answer">Correct Option</span>
-• Do not include any explanations or 'Answer:' lines
-• Use this exact format:
+                    document.getElementById('closeQuiz').onclick = () => (overlay.style.display = 'none');
+                    const form = overlay.querySelector('#quizForm');
 
-Q1. What is the question text?
-A) Option A
-B) Option B
-C) Option C
-D) <span class="answer">Correct Option</span>
+                    /* --- split Cohere output into 5 blocks --- */
+                    const blocks = txt.match(/(?:Q?\d+[.)])[\s\S]*?(?=(?:Q?\d+[.)])|$)/g) || [];
 
-... and so on until Q5.
+                    const correctMap = [];
+                    blocks.forEach((blk, qi) => {
+                        const lines = blk.trim().split('\n').filter(Boolean);
 
-Begin now:
-`;
+                        /* NEW — fallback for “Answer: X” format */
+                        const answerLetter = (blk.match(/Answer\s*[:\-]?\s*([A-D])/i) || [])[1]?.toUpperCase() || null;
 
-try {
-    const txt = await cohereQuery(qPrompt, 650);
+                        const qLine = lines.shift();
+                        const qDiv = document.createElement('div');
+                        qDiv.style.marginBottom = '20px';
+                        qDiv.innerHTML = `<b>${qLine.replace(/^Q?\d+[.)]\s*/, '')}</b><br><br>`;
 
-    overlay.style.display = 'block';
-    overlay.innerHTML = `
-        <button id="closeQuiz" style="position:absolute;top:15px;right:20px;font-size:20px;
-        background:#f44336;color:white;border:none;border-radius:4px;padding:4px 12px;cursor:pointer;">✖</button>
-        <h2 style="text-align:center;margin:10px 0 20px">📝 Module Quiz</h2>
-        <form id="quizForm" style="font-size:16px;line-height:1.6"></form>
-        <button id="submitQuiz" style="margin-top:25px;display:block;background:#4caf50;color:white;
-        border:none;padding:10px 20px;border-radius:6px;cursor:pointer;margin-left:auto;margin-right:auto;">Show Answers</button>
-        <div id="scoreBox" style="text-align:center;font-size:18px;margin-top:15px;font-weight:bold;"></div>
-    `;
+                        /* extract A‑D */
+                        const options = lines.slice(0, 4).map((line) => {
+                            const letter = line.trim().charAt(0).toUpperCase();          // A/B/C/D
+                            const isCorrect = /class=["']answer["']/.test(line) ||          // span‑tag way
+                                (answerLetter && letter === answerLetter);     // Answer: X fallback
+                            const text = line
+                                .replace(/<span class=["']answer["']>/, '')
+                                .replace('</span>', '')
+                                .replace(/^[A-Da-d][).]\s*/, '')
+                                .trim();
+                            return { text, isCorrect };
+                        });
 
-    document.getElementById('closeQuiz').onclick = () => (overlay.style.display = 'none');
-    const form = overlay.querySelector('#quizForm');
+                        /* shuffle so correct option isn’t always fixed */
+                        for (let i = options.length - 1; i > 0; i--) {
+                            const j = Math.floor(Math.random() * (i + 1));
+                            [options[i], options[j]] = [options[j], options[i]];
+                        }
 
-    const blocks = txt.split(/\n(?=Q\d+\.)/).filter(line => line.trim().length > 0);
+                        options.forEach((opt, oi) => {
+                            const id = `q${qi}o${oi}`;
+                            const radio = document.createElement('input');
+                            radio.type = 'radio';
+                            radio.name = `q${qi}`;
+                            radio.id = id;
+                            radio.dataset.correct = opt.isCorrect;
+                            const label = document.createElement('label');
+                            label.htmlFor = id;
+                            label.style.cssText =
+                                'display:block;margin:6px 0;padding:6px 10px;border-radius:5px;' +
+                                'cursor:pointer;border:1px solid #ccc;';
+                            label.appendChild(radio);
+                            label.appendChild(document.createTextNode(' ' + opt.text));
+                            qDiv.appendChild(label);
+                            if (opt.isCorrect) correctMap[qi] = label;
+                        });
+                        form.appendChild(qDiv);
+                    });
 
-    const correctMap = [];
-    blocks.forEach((blk, qi) => {
-        const lines = blk.trim().split('\n').filter(Boolean);
-        const qLine = lines.shift();
-
-        const qDiv = document.createElement('div');
-        qDiv.style.marginBottom = '20px';
-        qDiv.innerHTML = `<b>${qLine.replace(/^Q\d+[.)]\s*/, '')}</b><br><br>`;
-
-        const options = lines.slice(0, 4).map((line) => {
-            const isCorrect = /<span class=["']answer["']>/.test(line);
-            const text = line
-                .replace(/<span class=["']answer["']>/, '')
-                .replace('</span>', '')
-                .replace(/^[A-Da-d][).]\s*/, '')
-                .trim();
-            return { text, isCorrect };
-        });
-
-        // Shuffle options
-        for (let i = options.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [options[i], options[j]] = [options[j], options[i]];
-        }
-
-        options.forEach((opt, oi) => {
-            const id = `q${qi}o${oi}`;
-            const radio = document.createElement('input');
-            radio.type = 'radio';
-            radio.name = `q${qi}`;
-            radio.id = id;
-            radio.dataset.correct = opt.isCorrect;
-            const label = document.createElement('label');
-            label.htmlFor = id;
-            label.style.cssText =
-                'display:block;margin:6px 0;padding:6px 10px;border-radius:5px;' +
-                'cursor:pointer;border:1px solid #ccc;';
-            label.appendChild(radio);
-            label.appendChild(document.createTextNode(' ' + opt.text));
-            qDiv.appendChild(label);
-            if (opt.isCorrect) correctMap[qi] = label;
-        });
-
-        form.appendChild(qDiv);
-    });
-
-    overlay.querySelector('#submitQuiz').onclick = () => {
-        let right = 0;
-        correctMap.forEach((correctLabel, qi) => {
-            const chosen = form.querySelector(`input[name="q${qi}"]:checked`);
-            if (chosen) {
-                const chosenLabel = form.querySelector(`label[for="${chosen.id}"]`);
-                if (chosen.dataset.correct === 'true') {
-                    chosenLabel.style.background = '#c8e6c9';
-                    right++;
-                } else {
-                    chosenLabel.style.background = '#ffcdd2';
-                    correctLabel.style.background = '#e0f2f1';
+                    overlay.querySelector('#submitQuiz').onclick = () => {
+                        let right = 0;
+                        correctMap.forEach((correctLabel, qi) => {
+                            const chosen = form.querySelector(`input[name="q${qi}"]:checked`);
+                            if (chosen) {
+                                const chosenLabel = form.querySelector(`label[for="${chosen.id}"]`);
+                                if (chosen.dataset.correct === 'true') {
+                                    chosenLabel.style.background = '#c8e6c9';
+                                    right++;
+                                } else {
+                                    chosenLabel.style.background = '#ffcdd2';
+                                    correctLabel.style.background = '#e0f2f1';
+                                }
+                            } else {
+                                correctLabel.style.background = '#e0f2f1';
+                            }
+                        });
+                        const pct = Math.round((right / correctMap.length) * 100);
+                        addTokens(right);
+                        overlay.querySelector('#scoreBox').textContent =
+                            `🎯 You scored ${right}/${correctMap.length} (${pct}%)`;
+                    };
+                } catch (err) {
+                    overlay.innerHTML =
+                        '<p style="color:red;text-align:center">❌ Failed to generate quiz.</p>';
+                    console.error(err);
                 }
-            } else {
-                correctLabel.style.background = '#e0f2f1';
-            }
-        });
-        const pct = Math.round((right / correctMap.length) * 100);
-        addTokens(right);
-        overlay.querySelector('#scoreBox').textContent =
-            `🎯 You scored ${right}/${correctMap.length} (${pct}%)`;
-    };
-} catch (err) {
-    overlay.innerHTML =
-        '<p style="color:red;text-align:center">❌ Failed to generate quiz.</p>';
-    console.error(err);
-}
-
+            };
 
             /* --- Project Suggestions --- */
             const ideasDiv = document.createElement('div');
@@ -656,24 +652,27 @@ Format strictly:
                 const txt = await cohereQuery(projPrompt, 400);
                 ideasDiv.innerHTML = `
     <div style="
-        margin-left: auto;
-        margin-right: auto;
-        max-width: 95%;
-        background: #f8f9fa;
-        padding: 18px 32px;
-        border-radius: 10px;
-        border: 1px solid #e0e0e0;
-        box-sizing: border-box;
-        font-family: inherit;
-        font-size: 15px;
-        line-height: 1.7;
-        color: #222;
+        margin: 0 auto;
+        max-width: 98%;
+        background: linear-gradient(120deg, #f3e5f5 60%, #e1bee7 100%);
+        padding: 26px 32px 22px 32px;
+        border-radius: 16px;
+        border: 1.5px solid #ce93d8;
+        box-shadow: 0 6px 24px rgba(120,80,200,0.10);
+        font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+        font-size: 16px;
+        line-height: 1.8;
+        color: #4a148c;
         display: flex;
         flex-direction: column;
         align-items: center;
+        margin-top: 10px;
+        transition: box-shadow 0.2s;
     ">
-        <b style="display:block;text-align:center;font-size:18px;margin-bottom:12px;">🚀 Project Ideas:</b>
-        <div style="width:100%;max-width:500px;text-align:left;">
+        <div style="font-weight:700;text-align:center;margin-bottom:18px;font-size:20px;letter-spacing:0.5px;color:#6a1b9a;">
+            <span style="background:linear-gradient(90deg,#ab47bc,#42a5f5);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">🚀 Project Ideas</span>
+        </div>
+        <div style="width:100%;max-width:600px;text-align:left;">
             ${txt
                         .replace(/[#*]/g, '')
                         .replace(/\n{2,}/g, '\n') // Remove extra blank lines
@@ -684,7 +683,10 @@ Format strictly:
                             const match = line.match(/^(\d+\.\s*)([^:]+):\s*(.*)$/);
                             if (match) {
                                 const [_, number, title, desc] = match;
-                                return `<div style="margin-bottom:10px;"><b>${number}${title}</b>: ${desc}</div>`;
+                                return `<div style="margin-bottom:14px;padding:10px 14px;background:#ede7f6;border-radius:8px;box-shadow:0 2px 8px rgba(120,80,200,0.04);">
+                        <span style="font-weight:600;color:#4527a0;">${number}${title}</span>
+                        <span style="color:#4a148c;">: ${desc}</span>
+                    </div>`;
                             }
                             return `<div style="margin-bottom:10px;">${line}</div>`;
                         })
@@ -692,8 +694,6 @@ Format strictly:
         </div>
     </div>
 `;
-
-            };
 
             /* --- Quiz Me --- */ /* (unchanged – code omitted for brevity) */
             /* -------- END OF ORIGINAL MODULE SECTION -------- */
