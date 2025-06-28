@@ -386,6 +386,7 @@
                             });
                             const pct = Math.round((right / correctMap.length) * 100);
                             addTokens(right);
+                            addXP(right);
                             overlay.querySelector('#scoreBox').textContent =
                                 `🎯 You scored ${right}/${correctMap.length} (${pct}%)`;
                         };
@@ -680,5 +681,150 @@ Use real aptitude style, medium difficulty.
      *  Attach primary button to page
      *************************************************/
     document.body.appendChild(mainBtn);
+
+    /*************************************************
+     *  🏆 XP SYSTEM (New)
+     *************************************************/
+    const XP_KEY = 'udemyXPData';
+    const XP_LEVELS = [0, 100, 250, 500, 1000, 2000]; // XP thresholds
+    const xpData = {
+        currentXP: Number(localStorage.getItem(XP_KEY + '_xp')) || 0,
+        currentLevel: 1,
+        unlockedBadges: JSON.parse(localStorage.getItem(XP_KEY + '_badges') || '[]')
+    };
+
+    // Initialize level
+    for (let i = 0; i < XP_LEVELS.length; i++) {
+        if (xpData.currentXP >= XP_LEVELS[i]) xpData.currentLevel = i + 1;
+    }
+
+    function addXP(amount) {
+        xpData.currentXP += amount;
+        checkLevelUp();
+        localStorage.setItem(XP_KEY + '_xp', xpData.currentXP);
+        updateXpUI();
+    }
+
+    function checkLevelUp() {
+        const oldLevel = xpData.currentLevel;
+        while (xpData.currentLevel < XP_LEVELS.length &&
+            xpData.currentXP >= XP_LEVELS[xpData.currentLevel]) {
+            xpData.currentLevel++;
+        }
+        if (xpData.currentLevel > oldLevel) {
+            showLevelUpAlert(oldLevel, xpData.currentLevel);
+        }
+    }
+
+    function updateXpUI() {
+        // Update token display (existing)
+        if (!window.tokenBadge) {
+            window.tokenBadge = document.createElement('span');
+            window.tokenBadge.style.cssText = 'display:inline-block;margin-left:6px;padding:0 8px;background:#ffd54f;color:#000;border-radius:14px;font-size:12px;font-weight:bold;vertical-align:middle;';
+            mainBtn.appendChild(window.tokenBadge);
+        }
+        window.tokenBadge.textContent = `💰 ${tokenPoints} | Lv.${xpData.currentLevel}`;
+
+        // Add XP progress bar (new)
+        if (!window.xpBar) {
+            window.xpBar = document.createElement('div');
+            window.xpBar.style.cssText = `
+                position: absolute;
+                bottom: -10px;
+                width: 100%;
+                height: 3px;
+                background: rgba(0,0,0,0.1);
+                border-radius: 3px;
+            `;
+            const progress = document.createElement('div');
+            progress.id = 'xpProgress';
+            progress.style.cssText = `
+                height: 100%;
+                background: linear-gradient(90deg, #ff5722, #ff9800);
+                border-radius: 3px;
+                transition: width 0.3s;
+            `;
+            window.xpBar.appendChild(progress);
+            mainBtn.appendChild(window.xpBar);
+        }
+
+        const levelStartXP = XP_LEVELS[xpData.currentLevel - 1];
+        const levelEndXP = XP_LEVELS[xpData.currentLevel] || XP_LEVELS[XP_LEVELS.length - 1];
+        const progressPercent = ((xpData.currentXP - levelStartXP) / (levelEndXP - levelStartXP)) * 100;
+
+        document.getElementById('xpProgress').style.width = `${Math.min(100, progressPercent)}%`;
+        // Also update memeBtn state as before
+        memeBtn.disabled = tokenPoints <= 0;
+        memeBtn.style.opacity = memeBtn.disabled ? 0.5 : 1;
+    }
+
+    function showLevelUpAlert(oldLevel, newLevel) {
+        // Confetti effect
+        const confetti = document.createElement('div');
+        confetti.innerHTML = `
+            <style>
+                @keyframes confetti-fall {
+                    0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+                    100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+                }
+                .confetti-piece {
+                    position: fixed;
+                    width: 10px;
+                    height: 10px;
+                    background: hsl(${Math.random() * 360}, 100%, 50%);
+                    animation: confetti-fall ${2 + Math.random() * 3}s linear forwards;
+                    z-index: 10000;
+                }
+            </style>
+        `;
+        for (let i = 0; i < 50; i++) {
+            const piece = document.createElement('div');
+            piece.className = 'confetti-piece';
+            piece.style.left = `${Math.random() * 100}vw`;
+            piece.style.animationDelay = `${Math.random() * 0.5}s`;
+            confetti.appendChild(piece);
+        }
+        document.body.appendChild(confetti);
+
+        // Level-up modal
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #4CAF50;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 10001;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            text-align: center;
+            animation: zoomIn 0.3s;
+        `;
+        modal.innerHTML = `
+            <h3 style="margin:0">🎉 Level Up!</h3>
+            <p>${oldLevel} → <strong>Level ${newLevel}</strong></p>
+        `;
+        document.body.appendChild(modal);
+        setTimeout(() => {
+            confetti.remove();
+            modal.remove();
+        }, 3000);
+    }
+
+    // Add CSS animation for zoomIn
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes zoomIn {
+        0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+        100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Replace updateTokenUI with updateXpUI
+    updateXpUI();
+    setTimeout(updateXpUI, 0);
 
 })();
