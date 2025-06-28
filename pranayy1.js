@@ -473,8 +473,15 @@ In-depth Details
             word-break: break-word;
         ">
             <div style="font-weight:bold;text-align:center;margin-bottom:18px;">Course Analysis</div>
-            ${analysis.replace(/[#*]/g, '').replace(/\n/g, '<br>')}
-        </div>
+            ${analysis
+                .replace(/^TEMPLATE$/im, '<b>TEMPLATE</b>')
+                .replace(/^(Drawbacks.*)$/im, '<b>$1</b>')
+                .replace(/^(Learning Outcomes.*)$/im, '<b>$1</b>')
+                .replace(/^(In-depth Details.*)$/im, '<b>$1</b>')
+                .replace(/\n/g, '<br>')
+                .replace(/[#*]/g, '')
+            }
+            </div>
     </div>
 `;
         /***** 2️⃣ Modules List *****/
@@ -547,21 +554,24 @@ In-depth Details
             // action buttons
             const btnRow = modulesBox.querySelector('#modulesBtnRow');
             btnRow.innerHTML = '';
+            btnRow.style.display = 'flex';
+            btnRow.style.flexDirection = 'row';
+            btnRow.style.gap = '8px';
+            btnRow.style.justifyContent = 'flex-start';
+            btnRow.style.alignItems = 'center';
 
             const projBtn = document.createElement('button');
-            projBtn.textContent = '🎯 Suggest Projects';
             projBtn.style.cssText = [
-                'padding:10px 20px',
+                'padding:5px 12px',
                 'background:linear-gradient(90deg,#43e97b 0%,#38f9d7 100%)',
                 'color:#222',
                 'border:none',
-                'border-radius:8px',
+                'border-radius:6px',
                 'font-weight:bold',
-                'font-size:15px',
-                'box-shadow:0 2px 8px rgba(67,233,123,0.10)',
+                'font-size:13px',
+                'box-shadow:0 1px 4px rgba(67,233,123,0.08)',
                 'cursor:pointer',
-                'transition:transform 0.1s,box-shadow 0.1s',
-                'margin-right:10px'
+                'transition:background 0.15s'
             ].join(';');
             projBtn.onmouseover = () => projBtn.style.transform = 'scale(1.06)';
             projBtn.onmouseout = () => projBtn.style.transform = 'scale(1)';
@@ -570,21 +580,25 @@ In-depth Details
             const quizBtn = document.createElement('button');
             quizBtn.textContent = '📝 Quiz Me';
             quizBtn.style.cssText = [
-                'padding:10px 20px',
+                'padding:5px 12px',
                 'background:linear-gradient(90deg,#f7971e 0%,#ffd200 100%)',
                 'color:#222',
                 'border:none',
-                'border-radius:8px',
+                'border-radius:6px',
                 'font-weight:bold',
-                'font-size:15px',
-                'box-shadow:0 2px 8px rgba(255,215,0,0.10)',
+                'font-size:13px',
+                'box-shadow:0 1px 4px rgba(255,215,0,0.08)',
                 'cursor:pointer',
-                'transition:transform 0.1s,box-shadow 0.1s'
+                'transition:background 0.15s'
             ].join(';');
-            quizBtn.onmouseover = () => quizBtn.style.transform = 'scale(1.06)';
-            quizBtn.onmouseout = () => quizBtn.style.transform = 'scale(1)';
+            quizBtn.onmouseover = () => {
+                quizBtn.style.background = 'linear-gradient(90deg,#ffd200 0%,#f7971e 100%)';
+            };
+            quizBtn.onmouseout = () => {
+                quizBtn.style.background = 'linear-gradient(90deg,#f7971e 0%,#ffd200 100%)';
+            };
             btnRow.appendChild(quizBtn);
-
+            
             /* --- QUIZ ME ------------------------------------ */
             let overlay = document.getElementById('udemyoverlay');
             if (!overlay) {
