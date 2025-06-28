@@ -547,15 +547,62 @@ In-depth Details
             // action buttons
             const btnRow = modulesBox.querySelector('#modulesBtnRow');
             btnRow.innerHTML = '';
+            btnRow.style.display = 'flex';
+            btnRow.style.flexDirection = 'row';
+            btnRow.style.gap = '8px';
+            btnRow.style.justifyContent = 'flex-start';
+            btnRow.style.alignItems = 'center';
 
             const projBtn = document.createElement('button');
             projBtn.textContent = '🎯 Suggest Projects';
-            projBtn.style.cssText = 'padding:6px 12px;background:#28a745;color:#fff;border:none;border-radius:6px;cursor:pointer;';
+            projBtn.style.cssText = [
+                'padding:5px 12px',
+                'background:linear-gradient(90deg,#43e97b 0%,#38f9d7 100%)',
+                'color:#222',
+                'border:none',
+                'border-radius:6px',
+                'font-weight:bold',
+                'font-size:13px',
+                'box-shadow:0 1px 4px rgba(67,233,123,0.08)',
+                'cursor:pointer',
+                'transition:transform 0.12s,box-shadow 0.12s,background 0.12s'
+            ].join(';');
+            projBtn.onmouseover = () => {
+                projBtn.style.transform = 'scale(1.08)';
+                projBtn.style.boxShadow = '0 2px 8px rgba(67,233,123,0.18)';
+                projBtn.style.background = 'linear-gradient(90deg,#38f9d7 0%,#43e97b 100%)';
+            };
+            projBtn.onmouseout = () => {
+                projBtn.style.transform = 'scale(1)';
+                projBtn.style.boxShadow = '0 1px 4px rgba(67,233,123,0.08)';
+                projBtn.style.background = 'linear-gradient(90deg,#43e97b 0%,#38f9d7 100%)';
+            };
             btnRow.appendChild(projBtn);
 
             const quizBtn = document.createElement('button');
             quizBtn.textContent = '📝 Quiz Me';
-            quizBtn.style.cssText = 'padding:6px 12px;background:#ffc107;color:#000;border:none;border-radius:6px;cursor:pointer;';
+            quizBtn.style.cssText = [
+                'padding:5px 12px',
+                'background:linear-gradient(90deg,#f7971e 0%,#ffd200 100%)',
+                'color:#222',
+                'border:none',
+                'border-radius:6px',
+                'font-weight:bold',
+                'font-size:13px',
+                'box-shadow:0 1px 4px rgba(255,215,0,0.08)',
+                'cursor:pointer',
+                'transition:transform 0.12s,box-shadow 0.12s,background 0.12s'
+            ].join(';');
+            quizBtn.onmouseover = () => {
+                quizBtn.style.transform = 'scale(1.08)';
+                quizBtn.style.boxShadow = '0 2px 8px rgba(255,215,0,0.18)';
+                quizBtn.style.background = 'linear-gradient(90deg,#ffd200 0%,#f7971e 100%)';
+            };
+            quizBtn.onmouseout = () => {
+                quizBtn.style.transform = 'scale(1)';
+                quizBtn.style.boxShadow = '0 1px 4px rgba(255,215,0,0.08)';
+                quizBtn.style.background = 'linear-gradient(90deg,#f7971e 0%,#ffd200 100%)';
+            };
             btnRow.appendChild(quizBtn);
 
             /* --- QUIZ ME ------------------------------------ */
