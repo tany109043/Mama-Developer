@@ -201,32 +201,35 @@
 
         try {
             /***** 1️⃣ Course Analysis *****/
-            const analysisPrompt = `You are a concise educational analyst. 
-            Study the Udemy course below and reply in the EXACT markdown template that follows—no preamble or extras.
-            Course Title: ${title}
-            Course URL: ${url}
+            const analysisPrompt = `You are an educational content analyst.
 
-            ## TEMPLATE
-            ### Modules (≤8 items) 
-            - {Module Title ≤ 8 words}: {1-sentence key skill (≤15 words)}
-            
-            ### Drawbacks (≤3 items, ≤12 words each)
-            - {Drawback 1}
-            - {Drawback 2}
-            - {Drawback 3}
+Analyze the following Udemy course and respond strictly using the markdown template below—no introduction, no extra commentary.
 
-            ### Learning Outcomes (5 items, ≤12 words each)
-            1. {Outcome 1}
-            2. {Outcome 2}
-            3. {Outcome 3}
-            4. {Outcome 4}
-            5. {Outcome 5}
+Course Title: ${title}  
+Course URL: ${url}
 
-            RULES  
-            • Stick to the template headings and bullet/number format.  
-            • Keep total length under 180 words.  
-            • Use plain language; avoid filler and marketing hype.  
-            • No conclusions or advice—just the facts in the template.`;
+## TEMPLATE
+
+### Modules (max 8 items)  
+- {Module Title ≤ 8 words}: {Key skill in 1 sentence, max 15 words}
+
+### Drawbacks (max 3, ≤12 words each)  
+- {Brief, factual drawback 1}  
+- {Brief, factual drawback 2}  
+- {Brief, factual drawback 3}
+
+### Learning Outcomes (5 items, ≤12 words each)  
+1. {Outcome 1}  
+2. {Outcome 2}  
+3. {Outcome 3}  
+4. {Outcome 4}  
+5. {Outcome 5}
+
+## RULES  
+• Follow the headings and list formats exactly  
+• Do not exceed 180 words in total  
+• Use plain, clear language—no hype or sales tone  
+• Do not include summaries, conclusions, or opinions`;
             const analysis = await cohereQuery(analysisPrompt, 500);
             analysisBox.innerHTML = '<b>📘 Course Analysis:</b><br><br>' + analysis.replace(/\n/g, '<br>');
 
