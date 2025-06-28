@@ -785,6 +785,186 @@ In-depth Details
                     ]
                 },
                 {
+                    question: "Which SQL clause is used to remove rows based on a grouped aggregate condition?",
+                    options: [
+                        { text: "WHERE", isCorrect: false },
+                        { text: "GROUP BY", isCorrect: false },
+                        { text: "HAVING", isCorrect: true },
+                        { text: "FILTER", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is the purpose of the RANK() window function in SQL?",
+                    options: [
+                        { text: "Groups data into partitions", isCorrect: false },
+                        { text: "Returns the highest value", isCorrect: false },
+                        { text: "Ranks rows with possible gaps in rank", isCorrect: true },
+                        { text: "Returns a random row", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Which SQL construct is used to create recursive queries?",
+                    options: [
+                        { text: "JOIN", isCorrect: false },
+                        { text: "GROUP BY", isCorrect: false },
+                        { text: "WITH ... RECURSIVE", isCorrect: true },
+                        { text: "UNION ALL", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What does the COALESCE() function do in SQL?",
+                    options: [
+                        { text: "Returns NULL if all values are NULL", isCorrect: false },
+                        { text: "Returns the sum of all columns", isCorrect: false },
+                        { text: "Returns the first non-NULL value in a list", isCorrect: true },
+                        { text: "Combines two tables", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Which command is used to grant permissions on a table?",
+                    options: [
+                        { text: "PERMIT", isCorrect: false },
+                        { text: "ALLOW", isCorrect: false },
+                        { text: "GRANT", isCorrect: true },
+                        { text: "ACCESS", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "In SQL, what is a CTE?",
+                    options: [
+                        { text: "Central Table Engine", isCorrect: false },
+                        { text: "Common Table Expression", isCorrect: true },
+                        { text: "Core Transaction Entity", isCorrect: false },
+                        { text: "Column Type Extension", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Which SQL function removes leading and trailing spaces from a string?",
+                    options: [
+                        { text: "REMOVE()", isCorrect: false },
+                        { text: "STRIP()", isCorrect: false },
+                        { text: "TRIM()", isCorrect: true },
+                        { text: "CUT()", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is the default isolation level in most SQL databases?",
+                    options: [
+                        { text: "Read Uncommitted", isCorrect: false },
+                        { text: "Repeatable Read", isCorrect: false },
+                        { text: "Read Committed", isCorrect: true },
+                        { text: "Serializable", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is the use of the EXCEPT operator?",
+                    options: [
+                        { text: "Combines duplicate rows", isCorrect: false },
+                        { text: "Returns only rows in first query not in second", isCorrect: true },
+                        { text: "Returns common rows", isCorrect: false },
+                        { text: "Removes duplicates from a query", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Which command defines a new index on a table?",
+                    options: [
+                        { text: "ADD INDEX", isCorrect: false },
+                        { text: "CREATE INDEX", isCorrect: true },
+                        { text: "MAKE INDEX", isCorrect: false },
+                        { text: "SET INDEX", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Which function is used to return the number of characters in a string in SQL?",
+                    options: [
+                        { text: "SIZE()", isCorrect: false },
+                        { text: "LENGTH()", isCorrect: true },
+                        { text: "COUNT()", isCorrect: false },
+                        { text: "CHARCOUNT()", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is the purpose of the CROSS JOIN in SQL?",
+                    options: [
+                        { text: "Joins tables using a key", isCorrect: false },
+                        { text: "Filters rows based on condition", isCorrect: false },
+                        { text: "Returns Cartesian product of two tables", isCorrect: true },
+                        { text: "Joins based on matching rows", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Which SQL constraint ensures unique values in a column?",
+                    options: [
+                        { text: "NOT NULL", isCorrect: false },
+                        { text: "PRIMARY KEY", isCorrect: false },
+                        { text: "UNIQUE", isCorrect: true },
+                        { text: "CHECK", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Which SQL keyword is used to define a conditional CASE expression?",
+                    options: [
+                        { text: "IF", isCorrect: false },
+                        { text: "SWITCH", isCorrect: false },
+                        { text: "CASE", isCorrect: true },
+                        { text: "WHEN-THEN", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Which statement rolls back a transaction in SQL?",
+                    options: [
+                        { text: "REVERT", isCorrect: false },
+                        { text: "ROLLBACK", isCorrect: true },
+                        { text: "CANCEL", isCorrect: false },
+                        { text: "UNDO", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Which operator checks for value existence in a list?",
+                    options: [
+                        { text: "CONTAINS", isCorrect: false },
+                        { text: "EXISTS", isCorrect: false },
+                        { text: "IN", isCorrect: true },
+                        { text: "BETWEEN", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "How do you prevent a column from accepting NULL values?",
+                    options: [
+                        { text: "UNIQUE", isCorrect: false },
+                        { text: "DEFAULT 0", isCorrect: false },
+                        { text: "NOT NULL", isCorrect: true },
+                        { text: "MANDATORY", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Which aggregate function ignores NULLs by default?",
+                    options: [
+                        { text: "MAX()", isCorrect: false },
+                        { text: "COUNT()", isCorrect: false },
+                        { text: "SUM()", isCorrect: false },
+                        { text: "All aggregate functions", isCorrect: true }
+                    ]
+                },
+                {
+                    question: "How do you select records that begin with 'A'?",
+                    options: [
+                        { text: "WHERE name = 'A%'", isCorrect: false },
+                        { text: "WHERE name STARTS WITH 'A'", isCorrect: false },
+                        { text: "WHERE name LIKE 'A%'", isCorrect: true },
+                        { text: "WHERE name ^= 'A'", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is the difference between DELETE and TRUNCATE?",
+                    options: [
+                        { text: "TRUNCATE logs each row deleted", isCorrect: false },
+                        { text: "DELETE resets identity column", isCorrect: false },
+                        { text: "TRUNCATE is faster and removes all rows without logging each", isCorrect: true },
+                        { text: "DELETE is irreversible", isCorrect: false }
+                    ]
+                },
+                {
                     question: "What does the LIKE operator do?",
                     options: [
                         { text: "Searches for a pattern", isCorrect: true },
@@ -849,28 +1029,34 @@ In-depth Details
                     form.appendChild(qDiv);
                 });
 
-                overlay.querySelector('#submitQuiz').onclick = () => {
-                    let right = 0;
-                    correctMap.forEach((correctLabel, qi) => {
-                        const chosen = form.querySelector(`input[name="q${qi}"]:checked`);
-                        if (chosen) {
-                            const chosenLabel = form.querySelector(`label[for="${chosen.id}"]`);
-                            if (chosen.dataset.correct === 'true') {
-                                chosenLabel.style.background = '#c8e6c9';
-                                right++;
+                overlay.querySelector('#submitQuiz').onclick = (() => {
+                    let awarded = false; // Prevent multiple token awards
+                    return () => {
+                        let right = 0;
+                        correctMap.forEach((correctLabel, qi) => {
+                            const chosen = form.querySelector(`input[name="q${qi}"]:checked`);
+                            if (chosen) {
+                                const chosenLabel = form.querySelector(`label[for="${chosen.id}"]`);
+                                if (chosen.dataset.correct === 'true') {
+                                    chosenLabel.style.background = '#c8e6c9';
+                                    right++;
+                                } else {
+                                    chosenLabel.style.background = '#ffcdd2';
+                                    correctLabel.style.background = '#e0f2f1';
+                                }
                             } else {
-                                chosenLabel.style.background = '#ffcdd2';
                                 correctLabel.style.background = '#e0f2f1';
                             }
-                        } else {
-                            correctLabel.style.background = '#e0f2f1';
+                        });
+                        const pct = Math.round((right / correctMap.length) * 100);
+                        if (!awarded) {
+                            addTokens(right);
+                            awarded = true;
                         }
-                    });
-                    const pct = Math.round((right / correctMap.length) * 100);
-                    addTokens(right);
-                    overlay.querySelector('#scoreBox').textContent =
-                        `🎯 You scored ${right}/${correctMap.length} (${pct}%)`;
-                };
+                        overlay.querySelector('#scoreBox').textContent =
+                            `🎯 You scored ${right}/${correctMap.length} (${pct}%)`;
+                    };
+                })();
             };
 
             /* --- Project Suggestions --- */
@@ -1300,266 +1486,3 @@ Use real aptitude style, medium difficulty.
     document.body.appendChild(mainBtn);
 
 })();
-
-// Add this array at the top or before your main function
-const SQL_QUESTIONS = [
-    {
-        question: "Which SQL statement is used to extract data from a database?",
-        options: [
-            { text: "GET", isCorrect: false },
-            { text: "OPEN", isCorrect: false },
-            { text: "SELECT", isCorrect: true },
-            { text: "EXTRACT", isCorrect: false }
-        ]
-    },
-    {
-        question: "Which SQL clause is used to filter the results of a query?",
-        options: [
-            { text: "ORDER BY", isCorrect: false },
-            { text: "WHERE", isCorrect: true },
-            { text: "GROUP BY", isCorrect: false },
-            { text: "HAVING", isCorrect: false }
-        ]
-    },
-    {
-        question: "Which SQL statement is used to extract data from a database?",
-        options: [
-            { text: "GET", isCorrect: false },
-            { text: "OPEN", isCorrect: false },
-            { text: "SELECT", isCorrect: true },
-            { text: "EXTRACT", isCorrect: false }
-        ]
-    },
-    {
-        question: "What does SQL stand for?",
-        options: [
-            { text: "Structured Query Language", isCorrect: true },
-            { text: "System Question Language", isCorrect: false },
-            { text: "Sequential Query Logic", isCorrect: false },
-            { text: "Standard Question Language", isCorrect: false }
-        ]
-    },
-    {
-        question: "Which SQL clause is used to filter records?",
-        options: [
-            { text: "ORDER BY", isCorrect: false },
-            { text: "WHERE", isCorrect: true },
-            { text: "GROUP BY", isCorrect: false },
-            { text: "HAVING", isCorrect: false }
-        ]
-    },
-    {
-        question: "Which command is used to add new data?",
-        options: [
-            { text: "APPEND", isCorrect: false },
-            { text: "INSERT INTO", isCorrect: true },
-            { text: "ADD RECORD", isCorrect: false },
-            { text: "UPDATE", isCorrect: false }
-        ]
-    },
-    {
-        question: "What does the COUNT() function do?",
-        options: [
-            { text: "Adds numbers", isCorrect: false },
-            { text: "Counts rows", isCorrect: true },
-            { text: "Calculates average", isCorrect: false },
-            { text: "Sorts records", isCorrect: false }
-        ]
-    },
-    {
-        question: "Which SQL keyword is used to sort results?",
-        options: [
-            { text: "SORT", isCorrect: false },
-            { text: "ORDER BY", isCorrect: true },
-            { text: "GROUP", isCorrect: false },
-            { text: "ARRANGE", isCorrect: false }
-        ]
-    },
-    {
-        question: "Which clause is used to remove duplicate rows?",
-        options: [
-            { text: "UNIQUE", isCorrect: false },
-            { text: "REMOVE DUPLICATES", isCorrect: false },
-            { text: "DISTINCT", isCorrect: true },
-            { text: "FILTER", isCorrect: false }
-        ]
-    },
-    {
-        question: "Which function is used to find the highest value?",
-        options: [
-            { text: "TOP()", isCorrect: false },
-            { text: "HIGHEST()", isCorrect: false },
-            { text: "MAX()", isCorrect: true },
-            { text: "GREATEST()", isCorrect: false }
-        ]
-    },
-    {
-        question: "Which command is used to change existing data?",
-        options: [
-            { text: "ALTER", isCorrect: false },
-            { text: "MODIFY", isCorrect: false },
-            { text: "UPDATE", isCorrect: true },
-            { text: "CHANGE", isCorrect: false }
-        ]
-    },
-    {
-        question: "Which SQL keyword is used to delete data?",
-        options: [
-            { text: "REMOVE", isCorrect: false },
-            { text: "DELETE", isCorrect: true },
-            { text: "DROP", isCorrect: false },
-            { text: "TRUNCATE", isCorrect: false }
-        ]
-    },
-    {
-        question: "Which SQL command is used to remove a table?",
-        options: [
-            { text: "DELETE TABLE", isCorrect: false },
-            { text: "DROP TABLE", isCorrect: true },
-            { text: "REMOVE TABLE", isCorrect: false },
-            { text: "TRUNCATE TABLE", isCorrect: false }
-        ]
-    },
-    {
-        question: "What is the purpose of the GROUP BY clause?",
-        options: [
-            { text: "To sort the result set", isCorrect: false },
-            { text: "To group rows sharing the same values", isCorrect: true },
-            { text: "To filter records", isCorrect: false },
-            { text: "To update grouped data", isCorrect: false }
-        ]
-    },
-    {
-        question: "What is the correct syntax to create a table?",
-        options: [
-            { text: "MAKE TABLE table_name (...)", isCorrect: false },
-            { text: "BUILD TABLE table_name (...)", isCorrect: false },
-            { text: "CREATE TABLE table_name (...)", isCorrect: true },
-            { text: "CONSTRUCT table_name (...)", isCorrect: false }
-        ]
-    },
-    {
-        question: "Which operator is used to check for a range of values?",
-        options: [
-            { text: "WITHIN", isCorrect: false },
-            { text: "BETWEEN", isCorrect: true },
-            { text: "IN", isCorrect: false },
-            { text: "RANGE", isCorrect: false }
-        ]
-    },
-    {
-        question: "How do you rename a column in SQL?",
-        options: [
-            { text: "CHANGE COLUMN", isCorrect: false },
-            { text: "MODIFY COLUMN", isCorrect: false },
-            { text: "RENAME COLUMN", isCorrect: true },
-            { text: "UPDATE COLUMN", isCorrect: false }
-        ]
-    },
-    {
-        question: "What is a primary key?",
-        options: [
-            { text: "A key that is used to encrypt tables", isCorrect: false },
-            { text: "A field that uniquely identifies a row", isCorrect: true },
-            { text: "A foreign reference to another table", isCorrect: false },
-            { text: "A temporary key for sorting", isCorrect: false }
-        ]
-    },
-    {
-        question: "What does the HAVING clause do?",
-        options: [
-            { text: "Filters groups", isCorrect: true },
-            { text: "Sorts records", isCorrect: false },
-            { text: "Renames fields", isCorrect: false },
-            { text: "Creates indexes", isCorrect: false }
-        ]
-    },
-    {
-        question: "Which SQL statement is used to update data?",
-        options: [
-            { text: "MODIFY", isCorrect: false },
-            { text: "UPDATE", isCorrect: true },
-            { text: "REPLACE", isCorrect: false },
-            { text: "SET", isCorrect: false }
-        ]
-    },
-    {
-        question: "Which symbol is used for a single-character wildcard in SQL?",
-        options: [
-            { text: "*", isCorrect: false },
-            { text: "%", isCorrect: false },
-            { text: "_", isCorrect: true },
-            { text: "#", isCorrect: false }
-        ]
-    },
-    {
-        question: "Which SQL clause is used to combine rows from two or more tables?",
-        options: [
-            { text: "COMBINE", isCorrect: false },
-            { text: "MERGE", isCorrect: false },
-            { text: "JOIN", isCorrect: true },
-            { text: "APPEND", isCorrect: false }
-        ]
-    },
-    {
-        question: "Which JOIN returns all records when there is a match in either table?",
-        options: [
-            { text: "INNER JOIN", isCorrect: false },
-            { text: "LEFT JOIN", isCorrect: false },
-            { text: "FULL JOIN", isCorrect: true },
-            { text: "OUTER JOIN", isCorrect: false }
-        ]
-    },
-    {
-        question: "Which SQL command is used to create a new database?",
-        options: [
-            { text: "CREATE DB", isCorrect: false },
-            { text: "NEW DATABASE", isCorrect: false },
-            { text: "CREATE DATABASE", isCorrect: true },
-            { text: "INIT DB", isCorrect: false }
-        ]
-    },
-    {
-        question: "What is a foreign key?",
-        options: [
-            { text: "A key to access external APIs", isCorrect: false },
-            { text: "A key that references a primary key in another table", isCorrect: true },
-            { text: "A deprecated key type", isCorrect: false },
-            { text: "A temporary identifier", isCorrect: false }
-        ]
-    },
-    {
-        question: "What does the IS NULL operator do?",
-        options: [
-            { text: "Checks if a value is 0", isCorrect: false },
-            { text: "Checks if a value is empty", isCorrect: false },
-            { text: "Checks if a value is undefined", isCorrect: false },
-            { text: "Checks if a value is null", isCorrect: true }
-        ]
-    },
-    {
-        question: "Which function returns the lowest value?",
-        options: [
-            { text: "MIN()", isCorrect: true },
-            { text: "LOW()", isCorrect: false },
-            { text: "BOTTOM()", isCorrect: false },
-            { text: "LEAST()", isCorrect: false }
-        ]
-    },
-    {
-        question: "Which clause is used with aggregate functions?",
-        options: [
-            { text: "WHERE", isCorrect: false },
-            { text: "FILTER", isCorrect: false },
-            { text: "HAVING", isCorrect: true },
-            { text: "GROUP", isCorrect: false }
-        ]
-    },
-    // ...add 28+ more SQL questions in the same format
-];
-
-// Utility to get N random questions from an array
-function getRandomQuestions(arr, n) {
-    const shuffled = arr.slice().sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, n);
-}
