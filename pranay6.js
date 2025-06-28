@@ -229,9 +229,31 @@ In-depth Details
             const analysis = await cohereQuery(analysisPrompt, 650);
             // Custom styled box with equal margin and no markdown symbols
             analysisBox.innerHTML = `
-    <div style="margin:0 auto;max-width:95%;background:#f8f9fa;padding:22px 24px 22px 24px;border-radius:12px;border:1px solid #e0e0e0;box-sizing:border-box;text-align:left;">
-        <div style="margin:0 auto;max-width:95%;font-family:inherit;font-size:15px;line-height:1.7;color:#222;">
-            <b>Course Analysis</b><br><br>
+    <div style="
+        margin: 0 auto;
+        max-width: 95%;
+        background: #f8f9fa;
+        padding: 22px 32px 22px 32px;
+        border-radius: 12px;
+        border: 1px solid #e0e0e0;
+        box-sizing: border-box;
+        text-align: justify;
+        font-family: inherit;
+        font-size: 15px;
+        line-height: 1.7;
+        color: #222;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    ">
+        <div style="
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+            text-align: justify;
+            word-break: break-word;
+        ">
+            <div style="font-weight:bold;text-align:center;margin-bottom:18px;">Course Analysis</div>
             ${analysis.replace(/[#*]/g, '').replace(/\n/g, '<br>')}
         </div>
     </div>
