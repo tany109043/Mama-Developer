@@ -259,7 +259,6 @@ Rules:
 - Do not add summaries, suggestions, or extra formatting
 `;
 
-
             const analysis = await cohereQuery(analysisPrompt, 500);
             analysisBox.innerHTML = '<b>📘 Course Analysis:</b><br><br>' + analysis.replace(/\n/g, '<br>');
 
