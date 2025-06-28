@@ -9,9 +9,21 @@
 
   // Add emotion display to panel header
   const moodDisplay = document.createElement('span');
-  moodDisplay.id = 'moodDisplay';
-  moodDisplay.style.cssText = 'margin-left:auto;font-weight:bold;color:#555;';
-  document.querySelector('#udemyAnalysisPanel div').appendChild(moodDisplay);
+ moodDisplay.id = 'moodDisplay';
+moodDisplay.style.cssText = 'margin-left:auto;font-weight:bold;color:#555;';
+
+function waitForPanelHeader() {
+  const panel = document.querySelector('#udemyAnalysisPanel');
+  if (!panel) return setTimeout(waitForPanelHeader, 300);
+
+  const header = panel.querySelector('div');
+  if (!header) return setTimeout(waitForPanelHeader, 300);
+
+  header.appendChild(moodDisplay);
+}
+
+waitForPanelHeader();
+
 
   // Optional sound for sleepy mood
   const beep = new Audio("data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQgAAA==");
