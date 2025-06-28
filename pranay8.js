@@ -439,7 +439,7 @@ You are an expert project mentor.
 Given these course modules:
 ${selected.join('\n')}
 
-Suggest exactly three hands-on project ideas that directly apply the skills or concepts from these modules.
+Suggest exactly five hands-on project ideas that directly apply the skills or concepts from these modules.
 For each project, provide:
 - A clear project title (max 10 words, no symbols)
 - A concise description (max 25 words, plain text, no # or *)
@@ -448,22 +448,25 @@ Guidelines:
 • Only use information from the listed modules.
 • Do not add extra commentary or sections.
 • Use plain, clear language.
-• Keep the total response under 120 words.
+• Keep the total response under 180 words.
 • Do not use any markdown or special symbols.
 
 Format strictly:
 1. <Project Title>: <Description>
 2. <Project Title>: <Description>
 3. <Project Title>: <Description>
+4. <Project Title>: <Description>
+5. <Project Title>: <Description>
 `.trim();
 
-                    const txt = await cohereQuery(projPrompt, 350);
+                    const txt = await cohereQuery(projPrompt, 400);
                     ideasDiv.innerHTML = `
         <div style="
-            margin: 0 auto;
+            margin-left: auto;
+            margin-right: auto;
             max-width: 95%;
             background: #f8f9fa;
-            padding: 18px 24px;
+            padding: 18px 32px;
             border-radius: 10px;
             border: 1px solid #e0e0e0;
             box-sizing: border-box;
