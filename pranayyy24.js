@@ -108,11 +108,7 @@
     panel.id = 'udemyAnalysisPanel';
     panel.style.cssText = [
         'display:none', 'position:fixed', 'bottom:90px', 'right:20px',
-        'width:420px', 'height:620px',
-        // Distinct, soft, harmonious gradient for the OUTER container
-        // Soft peach to blue for a modern, friendly look that matches inner gradients
-        'background: linear-gradient(135deg, #fff6ec 0%, #e3f0ff 100%)',
-        'color:#000',
+        'width:420px', 'height:620px', 'background:#fff', 'color:#000',
         'border:1px solid #ccc', 'border-radius:12px',
         'box-shadow:0 4px 14px rgba(0,0,0,.3)',
         'font-family:sans-serif', 'font-size:14px', 'line-height:1.45',
@@ -137,16 +133,9 @@
     dqBtn.style.cssText = 'padding:6px 14px;background:#3f51b5;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;';
     headerBar.appendChild(dqBtn);
 
-    // ▸ BODY WRAPPER (scrolls) — contains analysis + modules + projects
+    // ▸ BODY WRAPPER (scrolls) — contains analysis + modules
     const bodyWrap = document.createElement('div');
-    bodyWrap.style.cssText = [
-        'flex:1 1 auto',
-        'overflow:auto',
-        'padding:14px',
-        // Unified, soft, harmonious gradient background for all main content
-        'background: linear-gradient(135deg, #eaf6ff 0%, #f6f3ff 60%, #f9f6ff 100%)',
-        'border-radius: 0 0 12px 12px'
-    ].join(';');
+    bodyWrap.style.cssText = 'flex:1 1 auto;overflow:auto;padding:14px;';
     panel.appendChild(bodyWrap);
 
     // ▸ Analysis block
@@ -491,12 +480,59 @@ In-depth Details
         /***** 2️⃣ Modules List *****/
         const mods = [...document.querySelectorAll('div[data-purpose="curriculum-section-container"] h3')];
         if (!mods.length) {
-            modulesBox.innerHTML = '<b>📂 Modules</b><br><br>❌ Could not detect modules.';
+            modulesBox.innerHTML = `
+    <div style="
+        margin: 0 auto;
+        max-width: 95%;
+        background: linear-gradient(135deg, #f9f6ff 0%, #e3f0ff 100%);
+        padding: 18px 32px;
+        border-radius: 10px;
+        border: 1px solid #b6c7e6;
+        box-sizing: border-box;
+        font-family: inherit;
+        font-size: 15px;
+        line-height: 1.7;
+        color: #222;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        box-shadow: 0 4px 18px rgba(80,120,200,0.10);
+    ">
+        <b style="display:block;text-align:center;font-size:18px;margin-bottom:12px;">📂 Modules</b>
+        <div style="width:100%;max-width:500px;text-align:left;">
+            ❌ Could not detect modules.
+        </div>
+    </div>
+`;
         } else {
-            modulesBox.innerHTML = '<b>📂 Modules</b><br><br>';
-
-            // checklist for each module
+            modulesBox.innerHTML = `
+    <div style="
+        margin: 0 auto;
+        max-width: 95%;
+        background: linear-gradient(135deg, #f9f6ff 0%, #e3f0ff 100%);
+        padding: 18px 32px;
+        border-radius: 10px;
+        border: 1px solid #b6c7e6;
+        box-sizing: border-box;
+        font-family: inherit;
+        font-size: 15px;
+        line-height: 1.7;
+        color: #222;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        box-shadow: 0 4px 18px rgba(80,120,200,0.10);
+    ">
+        <b style="display:block;text-align:center;font-size:18px;margin-bottom:12px;">📂 Modules</b>
+        <div id="modulesList" style="width:100%;max-width:500px;text-align:left;"></div>
+        <div id="modulesBtnRow"></div>
+    </div>
+`;
+            // checklist for each module (only module names, no "Section 1" etc.)
+            const modulesList = modulesBox.querySelector('#modulesList');
+            modulesList.innerHTML = '';
             mods.forEach((m, i) => {
+                let name = m.innerText.trim().replace(/^Section\s*\d+\s*[:-]?\s*/i, '');
                 const key = 'udemyMod-' + i;
                 const wrap = document.createElement('label');
                 wrap.style.cssText = 'display:block;margin:4px 0;cursor:pointer;';
@@ -504,14 +540,13 @@ In-depth Details
                 chk.type = 'checkbox';
                 chk.checked = localStorage.getItem(key) === '1';
                 chk.onchange = () => localStorage.setItem(key, chk.checked ? '1' : '0');
-                wrap.append(chk, ' ', m.innerText.trim());
-                modulesBox.appendChild(wrap);
+                wrap.append(chk, ' ', name);
+                modulesList.appendChild(wrap);
             });
 
             // action buttons
-            const btnRow = document.createElement('div');
-            btnRow.style.cssText = 'margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;';
-            modulesBox.appendChild(btnRow);
+            const btnRow = modulesBox.querySelector('#modulesBtnRow');
+            btnRow.innerHTML = '';
 
             const projBtn = document.createElement('button');
             projBtn.textContent = '🎯 Suggest Projects';
