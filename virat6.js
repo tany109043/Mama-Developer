@@ -387,7 +387,6 @@ ${transcript}
     const title = document.querySelector('h1')?.innerText || 'Untitled Course';
 
     try {
-        addTokens(20);
         /***** 1️⃣ Course Analysis *****/
         const analysisPrompt = `You are an expert educational analyst.
 Study the Udemy course below and reply in the EXACT template that follows—no preamble or extras.
@@ -827,6 +826,7 @@ Only output the JSON — no extra text.
             memeBtn.textContent = '🎭';
             memeBtn.disabled = false;
             memeBtn.appendChild(window.tokenBadge);
+            addTokens(-5);
         }
         const { top, bottom, category } = parsed;
         const templateId = getTemplateByCategory(category);
