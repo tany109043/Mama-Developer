@@ -133,9 +133,16 @@
     dqBtn.style.cssText = 'padding:6px 14px;background:#3f51b5;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;';
     headerBar.appendChild(dqBtn);
 
-    // ▸ BODY WRAPPER (scrolls) — contains analysis + modules
+    // ▸ BODY WRAPPER (scrolls) — contains analysis + modules + projects
     const bodyWrap = document.createElement('div');
-    bodyWrap.style.cssText = 'flex:1 1 auto;overflow:auto;padding:14px;';
+    bodyWrap.style.cssText = [
+        'flex:1 1 auto',
+        'overflow:auto',
+        'padding:14px',
+        // Unified, soft, harmonious gradient background for all main content
+        'background: linear-gradient(135deg, #eaf6ff 0%, #f6f3ff 60%, #f9f6ff 100%)',
+        'border-radius: 0 0 12px 12px'
+    ].join(';');
     panel.appendChild(bodyWrap);
 
     // ▸ Analysis block
