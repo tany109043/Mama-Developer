@@ -203,33 +203,36 @@
             /***** 1️⃣ Course Analysis *****/
             const analysisPrompt = `You are an educational content analyst.
 
-Analyze the following Udemy course and respond strictly using the markdown template below—no introduction, no extra commentary.
+Analyze the Udemy course below and return a clean, structured text summary. Do NOT use Markdown, bullet points, hashtags, or special symbols.
 
 Course Title: ${title}  
 Course URL: ${url}
 
-## TEMPLATE
+Return the analysis using this plain text template exactly:
 
-### Modules (max 8 items)  
-- {Module Title ≤ 8 words}: {Key skill in 1 sentence, max 15 words}
+Modules (up to 8)
+[Module 1 Title] — [1-sentence summary of key skill]
+[Module 2 Title] — [1-sentence summary of key skill]
+...
+[Module 8 Title] — [1-sentence summary of key skill]
 
-### Drawbacks (max 3, ≤12 words each)  
-- {Brief, factual drawback 1}  
-- {Brief, factual drawback 2}  
-- {Brief, factual drawback 3}
+Drawbacks (up to 3)
+Drawback 1: [12 words or less]
+Drawback 2: [12 words or less]
+Drawback 3: [12 words or less]
 
-### Learning Outcomes (5 items, ≤12 words each)  
-1. {Outcome 1}  
-2. {Outcome 2}  
-3. {Outcome 3}  
-4. {Outcome 4}  
-5. {Outcome 5}
+Learning Outcomes (5 total)
+1. [Outcome 1 — max 12 words]
+2. [Outcome 2 — max 12 words]
+3. [Outcome 3 — max 12 words]
+4. [Outcome 4 — max 12 words]
+5. [Outcome 5 — max 12 words]
 
-## RULES  
-• Follow the headings and list formats exactly  
-• Do not exceed 180 words in total  
-• Use plain, clear language—no hype or sales tone  
-• Do not include summaries, conclusions, or opinions`;
+Rules:
+- Keep total text under 180 words
+- Use clear, plain English — no filler, no hype
+- Follow the structure exactly — no extra text or headings`;
+
             const analysis = await cohereQuery(analysisPrompt, 500);
             analysisBox.innerHTML = '<b>📘 Course Analysis:</b><br><br>' + analysis.replace(/\n/g, '<br>');
 
