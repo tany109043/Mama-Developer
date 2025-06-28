@@ -445,71 +445,36 @@ In-depth Details
 `;
 
         const analysis = await cohereQuery(analysisPrompt, 650);
-        // User-friendly, clean, and visually pleasant Course Analysis UI
+        // Custom styled box with equal margin and no markdown symbols
         analysisBox.innerHTML = `
-<div style="
-    margin: 24px auto;
-    max-width: 760px;
-    background: #f7fafc;
-    padding: 24px 20px 20px 20px;
-    border-radius: 10px;
-    border: 1px solid #d0e2ff;
-    box-shadow: 0 2px 8px rgba(80,120,200,0.07);
-    font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
-    font-size: 16px;
-    line-height: 1.7;
-    color: #1a237e;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-">
-    <div style="max-width: 100%; word-break: break-word;">
+    <div style="
+        margin: 0 auto;
+        max-width: 95%;
+        background: #f8f9fa;
+        padding: 22px 32px 22px 32px;
+        border-radius: 12px;
+        border: 1px solid #e0e0e0;
+        box-sizing: border-box;
+        text-align: justify;
+        font-family: inherit;
+        font-size: 15px;
+        line-height: 1.7;
+        color: #222;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    ">
         <div style="
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 14px;
-            font-size: 20px;
-            letter-spacing: 0.1px;
-            color: #234087;
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+            text-align: justify;
+            word-break: break-word;
         ">
-            📊 Course Analysis
-        </div>
-        <div style="
-            background: #f3f7fb;
-            padding: 16px 14px;
-            border-radius: 7px;
-            border-left: 3px solid #42a5f5;
-            margin-left: 0; margin-right: 0;
-        ">
-            ${(() => {
-                // Remove Modules section and highlight others simply
-                let clean = analysis.replace(/[#*]/g, '').replace(/\r/g, '');
-                // Remove Modules section
-                clean = clean.replace(/Modules[\s\S]*?(?=Drawbacks|$)/i, '');
-                // Highlight Drawbacks
-                clean = clean.replace(/Drawbacks[\s\S]*?(?=Learning Outcomes|$)/i, match =>
-                    `<div style="background:#fffbe8;padding:10px 12px;border-radius:6px;font-weight:500;color:#b26a00;margin-bottom:10px;">
-                        ${match.replace(/Drawbacks/i, '<span style="font-size:16px;color:#b26a00;">Drawbacks</span>').replace(/\n/g, '<br>')}
-                    </div><br>`
-                );
-                // Highlight Learning Outcomes
-                clean = clean.replace(/Learning Outcomes[\s\S]*?(?=In-depth Details|$)/i, match =>
-                    `<div style="background:#e8f5e9;padding:10px 12px;border-radius:6px;font-weight:500;color:#256029;margin-bottom:10px;">
-                        ${match.replace(/Learning Outcomes/i, '<span style="font-size:16px;color:#256029;">Learning Outcomes</span>').replace(/\n/g, '<br>')}
-                    </div><br>`
-                );
-                // Highlight In-depth Details (centered text)
-                clean = clean.replace(/In-depth Details[\s\S]*/i, match =>
-                    `<div style="background:#e3f2fd;padding:10px 12px;border-radius:6px;font-weight:500;color:#234087;margin-bottom:0;text-align:center;">
-                        ${match.replace(/In-depth Details/i, '<span style="font-size:16px;color:#234087;">In-depth Details</span>').replace(/\n/g, '<br>')}
-                    </div>`
-                );
-                // Remove any extra blank lines
-                return clean.replace(/\n{2,}/g, '<br>');
-            })()}
+            <div style="font-weight:bold;text-align:center;margin-bottom:18px;">Course Analysis</div>
+            ${analysis.replace(/[#*]/g, '').replace(/\n/g, '<br>')}
         </div>
     </div>
-</div>
 `;
         /***** 2️⃣ Modules List *****/
         const mods = [...document.querySelectorAll('div[data-purpose="curriculum-section-container"] h3')];
@@ -722,45 +687,39 @@ Format strictly:
                 const txt = await cohereQuery(projPrompt, 400);
                 ideasDiv.innerHTML = `
     <div style="
-        margin: 0 auto;
-        max-width: 98%;
-        background: linear-gradient(120deg,#f3e5f5 60%,#e1bee7 100%);
-        padding: 28px 34px 22px 34px;
-        border-radius: 18px;
-        border: 1.5px solid #ce93d8;
-        box-shadow: 0 8px 28px rgba(120,80,200,0.13);
-        font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
-        font-size: 17px;
-        line-height: 1.85;
-        color: #4a148c;
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 95%;
+        background: #f8f9fa;
+        padding: 18px 32px;
+        border-radius: 10px;
+        border: 1px solid #e0e0e0;
+        box-sizing: border-box;
+        font-family: inherit;
+        font-size: 15px;
+        line-height: 1.7;
+        color: #222;
         display: flex;
         flex-direction: column;
         align-items: center;
-        margin-top: 10px;
-        transition: box-shadow 0.2s;
     ">
-        <div style="font-weight:700;text-align:center;margin-bottom:20px;font-size:21px;letter-spacing:0.5px;color:#6a1b9a;">
-            <span style="background:linear-gradient(90deg,#ab47bc,#42a5f5);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">🚀 Project Ideas</span>
-        </div>
-        <div style="width:100%;max-width:620px;text-align:left;">
+        <b style="display:block;text-align:center;font-size:18px;margin-bottom:12px;">🚀 Project Ideas:</b>
+        <div style="width:100%;max-width:500px;text-align:left;">
             ${txt
-                .replace(/[#*]/g, '')
-                .replace(/\n{2,}/g, '\n')
-                .split(/\n+/)
-                .map(line => line.trim())
-                .filter(line => line)
-                .map(line => {
-                    const match = line.match(/^(\d+\.\s*)([^:]+):\s*(.*)$/);
-                    if (match) {
-                        const [_, number, title, desc] = match;
-                        return `<div style="margin-bottom:16px;padding:12px 16px;background:#ede7f6;border-radius:10px;box-shadow:0 2px 8px rgba(120,80,200,0.04);">
-                            <span style="font-weight:600;color:#4527a0;">${number}${title}</span>
-                            <span style="color:#4a148c;">: ${desc}</span>
-                        </div>`;
-                    }
-                    return `<div style="margin-bottom:10px;">${line}</div>`;
-                })
-                .join('')}
+                        .replace(/[#*]/g, '')
+                        .replace(/\n{2,}/g, '\n') // Remove extra blank lines
+                        .split(/\n+/)
+                        .map(line => line.trim())
+                        .filter(line => line)
+                        .map(line => {
+                            const match = line.match(/^(\d+\.\s*)([^:]+):\s*(.*)$/);
+                            if (match) {
+                                const [_, number, title, desc] = match;
+                                return `<div style="margin-bottom:10px;"><b>${number}${title}</b>: ${desc}</div>`;
+                            }
+                            return `<div style="margin-bottom:10px;">${line}</div>`;
+                        })
+                        .join('')}
         </div>
     </div>
 `;
@@ -1118,3 +1077,381 @@ Use real aptitude style, medium difficulty.
     document.body.appendChild(mainBtn);
 
 })();
+
+// Example: Predefined SQL questions (expand as needed)
+const SQL_QUESTIONS = [
+    {
+        question: "Which SQL statement is used to extract data from a database?",
+        options: [
+            { text: "GET", isCorrect: false },
+            { text: "OPEN", isCorrect: false },
+            { text: "SELECT", isCorrect: true },
+            { text: "EXTRACT", isCorrect: false }
+        ]
+    },
+    {
+        question: "Which SQL clause is used to filter the results of a query?",
+        options: [
+            { text: "ORDER BY", isCorrect: false },
+            { text: "WHERE", isCorrect: true },
+            { text: "GROUP BY", isCorrect: false },
+            { text: "HAVING", isCorrect: false }
+        ]
+    },
+    {
+    question: "Which SQL statement is used to extract data from a database?",
+    options: [
+      { text: "GET", isCorrect: false },
+      { text: "OPEN", isCorrect: false },
+      { text: "SELECT", isCorrect: true },
+      { text: "EXTRACT", isCorrect: false }
+    ]
+  },
+  {
+    question: "What does SQL stand for?",
+    options: [
+      { text: "Structured Query Language", isCorrect: true },
+      { text: "System Question Language", isCorrect: false },
+      { text: "Sequential Query Logic", isCorrect: false },
+      { text: "Standard Question Language", isCorrect: false }
+    ]
+  },
+  {
+    question: "Which SQL clause is used to filter records?",
+    options: [
+      { text: "ORDER BY", isCorrect: false },
+      { text: "WHERE", isCorrect: true },
+      { text: "GROUP BY", isCorrect: false },
+      { text: "HAVING", isCorrect: false }
+    ]
+  },
+  {
+    question: "Which command is used to add new data?",
+    options: [
+      { text: "APPEND", isCorrect: false },
+      { text: "INSERT INTO", isCorrect: true },
+      { text: "ADD RECORD", isCorrect: false },
+      { text: "UPDATE", isCorrect: false }
+    ]
+  },
+  {
+    question: "What does the COUNT() function do?",
+    options: [
+      { text: "Adds numbers", isCorrect: false },
+      { text: "Counts rows", isCorrect: true },
+      { text: "Calculates average", isCorrect: false },
+      { text: "Sorts records", isCorrect: false }
+    ]
+  },
+  {
+    question: "Which SQL keyword is used to sort results?",
+    options: [
+      { text: "SORT", isCorrect: false },
+      { text: "ORDER BY", isCorrect: true },
+      { text: "GROUP", isCorrect: false },
+      { text: "ARRANGE", isCorrect: false }
+    ]
+  },
+  {
+    question: "Which clause is used to remove duplicate rows?",
+    options: [
+      { text: "UNIQUE", isCorrect: false },
+      { text: "REMOVE DUPLICATES", isCorrect: false },
+      { text: "DISTINCT", isCorrect: true },
+      { text: "FILTER", isCorrect: false }
+    ]
+  },
+  {
+    question: "Which function is used to find the highest value?",
+    options: [
+      { text: "TOP()", isCorrect: false },
+      { text: "HIGHEST()", isCorrect: false },
+      { text: "MAX()", isCorrect: true },
+      { text: "GREATEST()", isCorrect: false }
+    ]
+  },
+  {
+    question: "Which command is used to change existing data?",
+    options: [
+      { text: "ALTER", isCorrect: false },
+      { text: "MODIFY", isCorrect: false },
+      { text: "UPDATE", isCorrect: true },
+      { text: "CHANGE", isCorrect: false }
+    ]
+  },
+  {
+    question: "Which SQL keyword is used to delete data?",
+    options: [
+      { text: "REMOVE", isCorrect: false },
+      { text: "DELETE", isCorrect: true },
+      { text: "DROP", isCorrect: false },
+      { text: "TRUNCATE", isCorrect: false }
+    ]
+  },
+  {
+    question: "Which SQL command is used to remove a table?",
+    options: [
+      { text: "DELETE TABLE", isCorrect: false },
+      { text: "DROP TABLE", isCorrect: true },
+      { text: "REMOVE TABLE", isCorrect: false },
+      { text: "TRUNCATE TABLE", isCorrect: false }
+    ]
+  },
+  {
+    question: "What is the purpose of the GROUP BY clause?",
+    options: [
+      { text: "To sort the result set", isCorrect: false },
+      { text: "To group rows sharing the same values", isCorrect: true },
+      { text: "To filter records", isCorrect: false },
+      { text: "To update grouped data", isCorrect: false }
+    ]
+  },
+  {
+    question: "What is the correct syntax to create a table?",
+    options: [
+      { text: "MAKE TABLE table_name (...)", isCorrect: false },
+      { text: "BUILD TABLE table_name (...)", isCorrect: false },
+      { text: "CREATE TABLE table_name (...)", isCorrect: true },
+      { text: "CONSTRUCT table_name (...)", isCorrect: false }
+    ]
+  },
+  {
+    question: "Which operator is used to check for a range of values?",
+    options: [
+      { text: "WITHIN", isCorrect: false },
+      { text: "BETWEEN", isCorrect: true },
+      { text: "IN", isCorrect: false },
+      { text: "RANGE", isCorrect: false }
+    ]
+  },
+  {
+    question: "How do you rename a column in SQL?",
+    options: [
+      { text: "CHANGE COLUMN", isCorrect: false },
+      { text: "MODIFY COLUMN", isCorrect: false },
+      { text: "RENAME COLUMN", isCorrect: true },
+      { text: "UPDATE COLUMN", isCorrect: false }
+    ]
+  },
+  {
+    question: "What is a primary key?",
+    options: [
+      { text: "A key that is used to encrypt tables", isCorrect: false },
+      { text: "A field that uniquely identifies a row", isCorrect: true },
+      { text: "A foreign reference to another table", isCorrect: false },
+      { text: "A temporary key for sorting", isCorrect: false }
+    ]
+  },
+  {
+    question: "What does the HAVING clause do?",
+    options: [
+      { text: "Filters groups", isCorrect: true },
+      { text: "Sorts records", isCorrect: false },
+      { text: "Renames fields", isCorrect: false },
+      { text: "Creates indexes", isCorrect: false }
+    ]
+  },
+  {
+    question: "Which SQL statement is used to update data?",
+    options: [
+      { text: "MODIFY", isCorrect: false },
+      { text: "UPDATE", isCorrect: true },
+      { text: "REPLACE", isCorrect: false },
+      { text: "SET", isCorrect: false }
+    ]
+  },
+  {
+    question: "Which symbol is used for a single-character wildcard in SQL?",
+    options: [
+      { text: "*", isCorrect: false },
+      { text: "%", isCorrect: false },
+      { text: "_", isCorrect: true },
+      { text: "#", isCorrect: false }
+    ]
+  },
+  {
+    question: "Which SQL clause is used to combine rows from two or more tables?",
+    options: [
+      { text: "COMBINE", isCorrect: false },
+      { text: "MERGE", isCorrect: false },
+      { text: "JOIN", isCorrect: true },
+      { text: "APPEND", isCorrect: false }
+    ]
+  },
+  {
+    question: "Which JOIN returns all records when there is a match in either table?",
+    options: [
+      { text: "INNER JOIN", isCorrect: false },
+      { text: "LEFT JOIN", isCorrect: false },
+      { text: "FULL JOIN", isCorrect: true },
+      { text: "OUTER JOIN", isCorrect: false }
+    ]
+  },
+  {
+    question: "Which SQL command is used to create a new database?",
+    options: [
+      { text: "CREATE DB", isCorrect: false },
+      { text: "NEW DATABASE", isCorrect: false },
+      { text: "CREATE DATABASE", isCorrect: true },
+      { text: "INIT DB", isCorrect: false }
+    ]
+  },
+  {
+    question: "What is a foreign key?",
+    options: [
+      { text: "A key to access external APIs", isCorrect: false },
+      { text: "A key that references a primary key in another table", isCorrect: true },
+      { text: "A deprecated key type", isCorrect: false },
+      { text: "A temporary identifier", isCorrect: false }
+    ]
+  },
+  {
+    question: "What does the IS NULL operator do?",
+    options: [
+      { text: "Checks if a value is 0", isCorrect: false },
+      { text: "Checks if a value is empty", isCorrect: false },
+      { text: "Checks if a value is undefined", isCorrect: false },
+      { text: "Checks if a value is null", isCorrect: true }
+    ]
+  },
+  {
+    question: "Which function returns the lowest value?",
+    options: [
+      { text: "MIN()", isCorrect: true },
+      { text: "LOW()", isCorrect: false },
+      { text: "BOTTOM()", isCorrect: false },
+      { text: "LEAST()", isCorrect: false }
+    ]
+  },
+  {
+    question: "Which clause is used with aggregate functions?",
+    options: [
+      { text: "WHERE", isCorrect: false },
+      { text: "FILTER", isCorrect: false },
+      { text: "HAVING", isCorrect: true },
+      { text: "GROUP", isCorrect: false }
+    ]
+  },
+  {
+    question: "Which keyword is used to prevent null values?",
+    options: [
+      { text: "REQUIRED", isCorrect: false },
+      { text: "NOT NULL", isCorrect: true },
+      { text: "NO BLANK", isCorrect: false },
+      { text: "DISALLOW NULL", isCorrect: false }
+    ]
+  },
+  {
+    question: "What does the AVG() function return?",
+    options: [
+      { text: "Total sum", isCorrect: false },
+      { text: "Average of values", isCorrect: true },
+      { text: "Count of rows", isCorrect: false },
+      { text: "Rounded value", isCorrect: false }
+    ]
+  },
+  {
+    question: "Which clause is used to limit the number of records returned?",
+    options: [
+      { text: "TOP", isCorrect: false },
+      { text: "LIMIT", isCorrect: true },
+      { text: "RANGE", isCorrect: false },
+      { text: "ROWNUM", isCorrect: false }
+    ]
+  },
+  {
+    question: "What does the LIKE operator do?",
+    options: [
+      { text: "Searches for a pattern", isCorrect: true },
+      { text: "Matches column types", isCorrect: false },
+      { text: "Finds exact value", isCorrect: false },
+      { text: "Checks value type", isCorrect: false }
+    ]
+  }
+];
+
+    // ...add up to 30+ questions for SQL
+
+// Utility to get N random questions from an array
+function getRandomQuestions(arr, n) {
+    const shuffled = arr.slice().sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, n);
+}
+
+// ...inside your quizBtn.onclick handler, replace the Cohere logic with:
+quizBtn.onclick = async () => {
+    // You can detect the course by title or URL, here we use SQL as an example
+    if (/sql/i.test(title)) {
+        const chosenQuestions = getRandomQuestions(SQL_QUESTIONS, 5);
+
+        overlay.style.display = 'block';
+        overlay.innerHTML = `
+            <button id="closeQuiz" style="position:absolute;top:15px;right:20px;font-size:20px;
+            background:#f44336;color:white;border:none;border-radius:4px;padding:4px 12px;cursor:pointer;">✖</button>
+            <h2 style="text-align:center;margin:10px 0 20px">📝 SQL Quiz</h2>
+            <form id="quizForm" style="font-size:16px;line-height:1.6"></form>
+            <button id="submitQuiz" style="margin-top:25px;display:block;background:#4caf50;color:white;
+            border:none;padding:10px 20px;border-radius:6px;cursor:pointer;margin-left:auto;margin-right:auto;">Show Answers</button>
+            <div id="scoreBox" style="text-align:center;font-size:18px;margin-top:15px;font-weight:bold;"></div>
+        `;
+
+        document.getElementById('closeQuiz').onclick = () => (overlay.style.display = 'none');
+        const form = overlay.querySelector('#quizForm');
+        const correctMap = [];
+
+        chosenQuestions.forEach((q, qi) => {
+            const qDiv = document.createElement('div');
+            qDiv.style.marginBottom = '20px';
+            qDiv.innerHTML = `<b>${qi + 1}. ${q.question}</b><br><br>`;
+
+            // Shuffle options for each question
+            const options = q.options.slice().sort(() => 0.5 - Math.random());
+            options.forEach((opt, oi) => {
+                const id = `q${qi}o${oi}`;
+                const radio = document.createElement('input');
+                radio.type = 'radio';
+                radio.name = `q${qi}`;
+                radio.id = id;
+                radio.dataset.correct = opt.isCorrect;
+                const label = document.createElement('label');
+                label.htmlFor = id;
+                label.style.cssText =
+                    'display:block;margin:6px 0;padding:6px 10px;border-radius:5px;' +
+                    'cursor:pointer;border:1px solid #ccc;';
+                label.appendChild(radio);
+                label.appendChild(document.createTextNode(' ' + opt.text));
+                qDiv.appendChild(label);
+                if (opt.isCorrect) correctMap[qi] = label;
+            });
+
+            form.appendChild(qDiv);
+        });
+
+        overlay.querySelector('#submitQuiz').onclick = () => {
+            let right = 0;
+            correctMap.forEach((correctLabel, qi) => {
+                const chosen = form.querySelector(`input[name="q${qi}"]:checked`);
+                if (chosen) {
+                    const chosenLabel = form.querySelector(`label[for="${chosen.id}"]`);
+                    if (chosen.dataset.correct === 'true') {
+                        chosenLabel.style.background = '#c8e6c9';
+                        right++;
+                    } else {
+                        chosenLabel.style.background = '#ffcdd2';
+                        correctLabel.style.background = '#e0f2f1';
+                    }
+                } else {
+                    correctLabel.style.background = '#e0f2f1';
+                }
+            });
+            const pct = Math.round((right / correctMap.length) * 100);
+            addTokens(right);
+            overlay.querySelector('#scoreBox').textContent =
+                `🎯 You scored ${right}/${correctMap.length} (${pct}%)`;
+        };
+        return;
+    }
+
+    // ...fallback to Cohere or other logic for non-SQL courses
+    // ...existing code...
+};
