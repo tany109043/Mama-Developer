@@ -445,41 +445,40 @@ In-depth Details
 `;
 
         const analysis = await cohereQuery(analysisPrompt, 650);
-        // User-friendly, clean, but not overly flashy Course Analysis UI
+        // User-friendly, clean, and visually pleasant Course Analysis UI
         analysisBox.innerHTML = `
 <div style="
     margin: 24px auto;
     max-width: 760px;
     background: #f7fafc;
-    padding: 28px 28px 24px 28px;
-    border-radius: 14px;
+    padding: 24px 20px 20px 20px;
+    border-radius: 10px;
     border: 1px solid #d0e2ff;
-    box-shadow: 0 4px 18px rgba(80,120,200,0.08);
+    box-shadow: 0 2px 8px rgba(80,120,200,0.07);
     font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
-    font-size: 17px;
+    font-size: 16px;
     line-height: 1.7;
     color: #1a237e;
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    transition: box-shadow 0.2s;
 ">
     <div style="max-width: 100%; word-break: break-word;">
         <div style="
             font-weight: 600;
             text-align: center;
-            margin-bottom: 18px;
-            font-size: 22px;
-            letter-spacing: 0.2px;
+            margin-bottom: 14px;
+            font-size: 20px;
+            letter-spacing: 0.1px;
             color: #234087;
         ">
             📊 Course Analysis
         </div>
         <div style="
             background: #f3f7fb;
-            padding: 22px 20px;
-            border-radius: 10px;
-            border-left: 4px solid #42a5f5;
+            padding: 16px 14px;
+            border-radius: 7px;
+            border-left: 3px solid #42a5f5;
             margin-left: 0; margin-right: 0;
         ">
             ${(() => {
@@ -489,20 +488,20 @@ In-depth Details
                 clean = clean.replace(/Modules[\s\S]*?(?=Drawbacks|$)/i, '');
                 // Highlight Drawbacks
                 clean = clean.replace(/Drawbacks[\s\S]*?(?=Learning Outcomes|$)/i, match =>
-                    `<div style="background:#fff8e1;padding:12px 14px;border-radius:7px;font-weight:500;color:#b26a00;margin-bottom:14px;">
-                        ${match.replace(/Drawbacks/i, '<span style="font-size:17px;color:#b26a00;">Drawbacks</span>').replace(/\n/g, '<br>')}
+                    `<div style="background:#fffbe8;padding:10px 12px;border-radius:6px;font-weight:500;color:#b26a00;margin-bottom:10px;">
+                        ${match.replace(/Drawbacks/i, '<span style="font-size:16px;color:#b26a00;">Drawbacks</span>').replace(/\n/g, '<br>')}
                     </div><br>`
                 );
                 // Highlight Learning Outcomes
                 clean = clean.replace(/Learning Outcomes[\s\S]*?(?=In-depth Details|$)/i, match =>
-                    `<div style="background:#e8f5e9;padding:12px 14px;border-radius:7px;font-weight:500;color:#256029;margin-bottom:14px;">
-                        ${match.replace(/Learning Outcomes/i, '<span style="font-size:17px;color:#256029;">Learning Outcomes</span>').replace(/\n/g, '<br>')}
+                    `<div style="background:#e8f5e9;padding:10px 12px;border-radius:6px;font-weight:500;color:#256029;margin-bottom:10px;">
+                        ${match.replace(/Learning Outcomes/i, '<span style="font-size:16px;color:#256029;">Learning Outcomes</span>').replace(/\n/g, '<br>')}
                     </div><br>`
                 );
-                // Highlight In-depth Details
+                // Highlight In-depth Details (centered text)
                 clean = clean.replace(/In-depth Details[\s\S]*/i, match =>
-                    `<div style="background:#e3f2fd;padding:12px 14px;border-radius:7px;font-weight:500;color:#234087;margin-bottom:0;">
-                        ${match.replace(/In-depth Details/i, '<span style="font-size:17px;color:#234087;">In-depth Details</span>').replace(/\n/g, '<br>')}
+                    `<div style="background:#e3f2fd;padding:10px 12px;border-radius:6px;font-weight:500;color:#234087;margin-bottom:0;text-align:center;">
+                        ${match.replace(/In-depth Details/i, '<span style="font-size:16px;color:#234087;">In-depth Details</span>').replace(/\n/g, '<br>')}
                     </div>`
                 );
                 // Remove any extra blank lines
