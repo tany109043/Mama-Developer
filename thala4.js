@@ -4,7 +4,6 @@
 (async () => {
     const API = "http://localhost:8000";
 
-    // Catchy messages for each negative emotion
     const emotionMessages = {
         tired: "😴 Wake up, champ! Your brain needs you!",
         sleep: "🚨 You're dozing off — sit up straight!",
@@ -12,20 +11,21 @@
         "You Look bored  generate a meme,relax a bit": "😐 Bored? Create a meme and spark your creativity!"
     };
 
-    /* ─── Tunables ───────────────────────── */
-    const WINDOW_SEC      = 10;   // how far back we look for dominant emotion
-    const MIN_OCCURRENCES = 3;    // must appear ≥ this many times in window
-    const COOLDOWN_SEC    = 30;   // wait before re‑alerting for same emotion
-    /* ────────────────────────────────────── */
+    const sleepSound = new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg");
 
-    // --- Inject notification box ---
+    const WINDOW_SEC = 10;
+    const MIN_OCCURRENCES = 3;
+    const STABLE_SEC = 3;
+    const GLOBAL_COOLDOWN = 30;
+
     const notify = (() => {
         const box = document.createElement("div");
         box.id = "emotionAlertBox";
         box.style.cssText = `
             position: fixed;
-            bottom: 20px;
-            right: 20px;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
             background: #fff3cd;
             color: #856404;
             padding: 16px 20px;
@@ -33,94 +33,101 @@
             border-radius: 12px;
             font-size: 16px;
             font-weight: bold;
-            max-width: 320px;
+            max-width: 400px;
             z-index: 9999;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 16px rgba(0,0,0,.2);
             display: none;
             transition: opacity .4s ease;
             opacity: 0;
+            text-align: center;
         `;
         document.body.appendChild(box);
-        return (msg) => {
-            box.innerText = msg;
+        return (msg, label) => {
+            box.textContent = msg;
             box.style.display = "block";
             box.style.opacity = "1";
             clearTimeout(box.hideTimeout);
             box.hideTimeout = setTimeout(() => {
                 box.style.opacity = "0";
-                setTimeout(() => { box.style.display = "none"; }, 400);
+                setTimeout(() => (box.style.display = "none"), 400);
             }, 5000);
+
+            if (label === "sleep") {
+                sleepSound.currentTime = 0;
+                sleepSound.play().catch(e => console.warn("🔇 Cannot auto-play sound:", e));
+            }
         };
     })();
 
-    // --- Emotion window + cooldown bookkeeping ---
-    const history = [];      // [{label, t}]
-    const lastAlertAt = {};  // {label: timestamp}
-
-    // --- Helpers ---
     const now = () => Math.floor(Date.now() / 1000);
+    const hist = [];
+    let lastPopupAt = 0;
+    let stableStart = 0;
+    let prevDominant = "engagement/focus";
 
-    const recordLabel = (label) => {
-        history.push({ label, t: now() });
-        // keep only WINDOW_SEC seconds of data
-        while (history.length && history[0].t < now() - WINDOW_SEC) history.shift();
+    const record = (label) => {
+        hist.push({ label, t: now() });
+        while (hist.length && hist[0].t < now() - WINDOW_SEC) hist.shift();
     };
 
-    const dominantEmotion = () => {
+    const getDominant = () => {
         const counts = {};
-        history.forEach(({ label }) => (counts[label] = (counts[label] || 0) + 1));
+        for (const { label } of hist) counts[label] = (counts[label] || 0) + 1;
         let dom = "engagement/focus", max = 0;
-        for (const [lbl, cnt] of Object.entries(counts)) {
-            if (cnt > max) { dom = lbl; max = cnt; }
-        }
+        for (const [l, c] of Object.entries(counts))
+            if (c > max) { dom = l; max = c; }
         return { dom, count: max };
     };
 
-    // --- Main flow ---
-    try {
-        await fetch(API + "/start", { method: "POST" });
-    } catch (err) {
-        console.error("⚠️ Sentiment-analysis API unreachable:", err);
-        return;
-    }
+    try { await fetch(API + "/start", { method: "POST" }); }
+    catch (e) { console.error("❌ Backend unreachable:", e); return; }
 
     let running = true;
 
     async function poll() {
         if (!running) return;
-        try {
-            const res  = await fetch(API + "/latest");
-            const data = await res.json();
-            const label = data.label;
-            if (label) recordLabel(label);
 
-            // Every second we check if a popup is warranted
-            const { dom, count } = dominantEmotion();
+        try {
+            const res = await fetch(API + "/latest");
+            const data = await res.json();
+            if (data.label) record(data.label);
+
+            const { dom, count } = getDominant();
+
+            if (dom !== prevDominant) {
+                prevDominant = dom;
+                stableStart = now();
+            }
+
+            const stableFor = now() - stableStart;
+
             if (
                 dom !== "engagement/focus" &&
                 count >= MIN_OCCURRENCES &&
-                (!lastAlertAt[dom] || now() - lastAlertAt[dom] >= COOLDOWN_SEC)
+                stableFor >= STABLE_SEC &&
+                now() - lastPopupAt >= GLOBAL_COOLDOWN
             ) {
-                if (emotionMessages[dom]) notify(emotionMessages[dom]);
-                lastAlertAt[dom] = now();
+                if (emotionMessages[dom]) notify(emotionMessages[dom], dom);
+                lastPopupAt = now();
             }
         } catch {
             console.warn("Waiting for sentiment data…");
         }
+
         setTimeout(poll, 1000);
     }
     poll();
 
-    // --- ESC stops everything ---
     window.addEventListener("keydown", async (e) => {
         if (e.key === "Escape") {
             running = false;
             await fetch(API + "/stop", { method: "POST" });
-            document.getElementById("emotionAlertBox")?.remove();
+            document.querySelector("#emotionAlertBox")?.remove();
             console.log("Emotion monitor stopped.");
         }
     });
 })();
+
 
 
 // ==================================================
