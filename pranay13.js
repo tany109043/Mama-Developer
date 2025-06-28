@@ -207,8 +207,6 @@ Course Title: ${title}
 Course URL: ${url}
 
 TEMPLATE
-Modules (up to 8)
-- Module Title: Key skill or topic (1 sentence, max 15 words)
 
 Drawbacks (up to 3, max 12 words each)
 - Drawback 1
@@ -229,34 +227,34 @@ In-depth Details
             const analysis = await cohereQuery(analysisPrompt, 650);
             // Custom styled box with equal margin and no markdown symbols
             analysisBox.innerHTML = `
+<div style="
+    margin: 0 auto;
+    max-width: 95%;
+    background: #f8f9fa;
+    padding: 22px 32px 22px 32px;
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    box-sizing: border-box;
+    text-align: justify;
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #222;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+">
     <div style="
+        width: 100%;
+        max-width: 700px;
         margin: 0 auto;
-        max-width: 95%;
-        background: #f8f9fa;
-        padding: 22px 32px 22px 32px;
-        border-radius: 12px;
-        border: 1px solid #e0e0e0;
-        box-sizing: border-box;
         text-align: justify;
-        font-family: inherit;
-        font-size: 15px;
-        line-height: 1.7;
-        color: #222;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        word-break: break-word;
     ">
-        <div style="
-            width: 100%;
-            max-width: 700px;
-            margin: 0 auto;
-            text-align: justify;
-            word-break: break-word;
-        ">
-            <div style="font-weight:bold;text-align:center;margin-bottom:18px;">Course Analysis</div>
-            ${analysis.replace(/[#*]/g, '').replace(/\n/g, '<br>')}
-        </div>
+        <div style="font-weight:bold;text-align:center;margin-bottom:18px;">Course Analysis</div>
+        ${analysis.replace(/[#*]/g, '').replace(/\n/g, '<br>')}
     </div>
+</div>
 `;
 
             /***** 2️⃣ Modules List *****/
