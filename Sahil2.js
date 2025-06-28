@@ -201,63 +201,34 @@
 
         try {
             /***** 1️⃣ Course Analysis *****/
-            const analysisPrompt = `You are an expert educational analyst.
-Study the Udemy course below and reply in the EXACT template that follows—no preamble or extras.
-Course Title: ${title}
-Course URL: ${url}
+            const analysisPrompt = `You are a concise educational analyst. 
+            Study the Udemy course below and reply in the EXACT markdown template that follows—no preamble or extras.
+            Course Title: ${title}
+            Course URL: ${url}
 
-TEMPLATE
-Modules (up to 8)
-- Module Title: Key skill or topic (1 sentence, max 15 words)
+            ## TEMPLATE
+            ### Modules (≤8 items) 
+            - {Module Title ≤ 8 words}: {1-sentence key skill (≤15 words)}
+            
+            ### Drawbacks (≤3 items, ≤12 words each)
+            - {Drawback 1}
+            - {Drawback 2}
+            - {Drawback 3}
 
-Drawbacks (up to 3, max 12 words each)
-- Drawback 1
-- Drawback 2
-- Drawback 3
+            ### Learning Outcomes (5 items, ≤12 words each)
+            1. {Outcome 1}
+            2. {Outcome 2}
+            3. {Outcome 3}
+            4. {Outcome 4}
+            5. {Outcome 5}
 
-Learning Outcomes (5, max 12 words each)
-1. Outcome 1
-2. Outcome 2
-3. Outcome 3
-4. Outcome 4
-5. Outcome 5
-
-In-depth Details
-- Provide a concise but thorough summary of the course content, structure, teaching approach, and any unique features. Use only information visible on the course page. Do not add conclusions or advice. Do not use any symbols like # or * in your response. Use plain text only. Keep the total response under 220 words. Ensure the text is well-aligned and easy to read.
-`;
-
-            const analysis = await cohereQuery(analysisPrompt, 650);
-            // Custom styled box with equal margin and no markdown symbols
-            analysisBox.innerHTML = `
-    <div style="
-        margin: 0 auto;
-        max-width: 95%;
-        background: #f8f9fa;
-        padding: 22px 32px 22px 32px;
-        border-radius: 12px;
-        border: 1px solid #e0e0e0;
-        box-sizing: border-box;
-        text-align: justify;
-        font-family: inherit;
-        font-size: 15px;
-        line-height: 1.7;
-        color: #222;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    ">
-        <div style="
-            width: 100%;
-            max-width: 700px;
-            margin: 0 auto;
-            text-align: justify;
-            word-break: break-word;
-        ">
-            <div style="font-weight:bold;text-align:center;margin-bottom:18px;">Course Analysis</div>
-            ${analysis.replace(/[#*]/g, '').replace(/\n/g, '<br>')}
-        </div>
-    </div>
-`;
+            RULES  
+            • Stick to the template headings and bullet/number format.  
+            • Keep total length under 180 words.  
+            • Use plain language; avoid filler and marketing hype.  
+            • No conclusions or advice—just the facts in the template.`;
+            const analysis = await cohereQuery(analysisPrompt, 500);
+            analysisBox.innerHTML = '<b>📘 Course Analysis:</b><br><br>' + analysis.replace(/\n/g, '<br>');
 
             /***** 2️⃣ Modules List *****/
             const mods = [...document.querySelectorAll('div[data-purpose="curriculum-section-container"] h3')];
