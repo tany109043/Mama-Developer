@@ -49,7 +49,7 @@
     const closeBtn = document.createElement('button');
     closeBtn.textContent = '✖';
     closeBtn.style.cssText = 'position:absolute;top:6px;right:8px;background:none;border:none;font-size:18px;cursor:pointer;';
-    closeBtn.onclick = () => (panel.style.display = 'flex');
+    closeBtn.onclick = () => (panel.style.display = 'none');
     panel.appendChild(closeBtn);
 
     // ▸ HEADER BAR (Daily Question lives here)
@@ -515,6 +515,7 @@
         } finally {
             memeBtn.textContent = '🎭';
             memeBtn.disabled = false;
+            memeBtn.appendChild(window.tokenBadge);
         }
     };
 
