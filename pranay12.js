@@ -487,9 +487,10 @@ ideasDiv.innerHTML = `
                 .map(line => line.trim())
                 .filter(line => line)
                 .map(line => {
-                    const match = line.match(/^(\d+\.\s*)(.*)/);
+                    const match = line.match(/^(\d+\.\s*)([^:]+):\s*(.*)$/);
                     if (match) {
-                        return `<div style="margin-bottom:10px;"><b>${match[1]}${match[2]}</b></div>`;
+                        const [_, number, title, desc] = match;
+                        return `<div style="margin-bottom:10px;"><b>${number}${title}</b>: ${desc}</div>`;
                     }
                     return `<div style="margin-bottom:10px;">${line}</div>`;
                 })
@@ -497,6 +498,7 @@ ideasDiv.innerHTML = `
         </div>
     </div>
 `;
+
                 };
 
                 /* --- Quiz Me --- */ /* (unchanged – code omitted for brevity) */
