@@ -204,35 +204,63 @@
 
     try {
         /***** 1️⃣ Course Analysis *****/
-        const analysisPrompt = `You are a concise educational analyst. 
-            Study the Udemy course below and reply in the EXACT markdown template that follows—no preamble or extras.
-            Course Title: ${title}
-            Course URL: ${url}
+        const analysisPrompt = `You are an expert educational analyst.
+Study the Udemy course below and reply in the EXACT template that follows—no preamble or extras.
+Course Title: ${title}
+Course URL: ${url}
 
-            ## TEMPLATE
-            ### Modules (≤8 items) 
-            - {Module Title ≤ 8 words}: {1-sentence key skill (≤15 words)}
-            
-            ### Drawbacks (≤3 items, ≤12 words each)
-            - {Drawback 1}
-            - {Drawback 2}
-            - {Drawback 3}
+TEMPLATE
+Modules (up to 8)
+- Module Title: Key skill or topic (1 sentence, max 15 words)
 
-            ### Learning Outcomes (5 items, ≤12 words each)
-            1. {Outcome 1}
-            2. {Outcome 2}
-            3. {Outcome 3}
-            4. {Outcome 4}
-            5. {Outcome 5}
+Drawbacks (up to 3, max 12 words each)
+- Drawback 1
+- Drawback 2
+- Drawback 3
 
-            RULES  
-            • Stick to the template headings and bullet/number format.  
-            • Keep total length under 180 words.  
-            • Use plain language; avoid filler and marketing hype.  
-            • No conclusions or advice—just the facts in the template.`;
-        const analysis = await cohereQuery(analysisPrompt, 500);
-        analysisBox.innerHTML = '<b>📘 Course Analysis:</b><br><br>' + analysis.replace(/\n/g, '<br>');
+Learning Outcomes (5, max 12 words each)
+1. Outcome 1
+2. Outcome 2
+3. Outcome 3
+4. Outcome 4
+5. Outcome 5
 
+In-depth Details
+- Provide a concise but thorough summary of the course content, structure, teaching approach, and any unique features. Use only information visible on the course page. Do not add conclusions or advice. Do not use any symbols like # or * in your response. Use plain text only. Keep the total response under 220 words. Ensure the text is well-aligned and easy to read.
+`;
+
+        const analysis = await cohereQuery(analysisPrompt, 650);
+        // Custom styled box with equal margin and no markdown symbols
+        analysisBox.innerHTML = `
+    <div style="
+        margin: 0 auto;
+        max-width: 95%;
+        background: #f8f9fa;
+        padding: 22px 32px 22px 32px;
+        border-radius: 12px;
+        border: 1px solid #e0e0e0;
+        box-sizing: border-box;
+        text-align: justify;
+        font-family: inherit;
+        font-size: 15px;
+        line-height: 1.7;
+        color: #222;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    ">
+        <div style="
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+            text-align: justify;
+            word-break: break-word;
+        ">
+            <div style="font-weight:bold;text-align:center;margin-bottom:18px;">Course Analysis</div>
+            ${analysis.replace(/[#*]/g, '').replace(/\n/g, '<br>')}
+        </div>
+    </div>
+`;
         /***** 2️⃣ Modules List *****/
         const mods = [...document.querySelectorAll('div[data-purpose="curriculum-section-container"] h3')];
         if (!mods.length) {
@@ -408,8 +436,71 @@
                 const selected = mods.filter((_, i) => localStorage.getItem('udemyMod-' + i) === '1').map(m => m.innerText.trim());
                 if (!selected.length) return alert('Select modules first.');
                 ideasDiv.innerHTML = '<b>⏳ Fetching ideas…</b>';
-                const txt = await cohereQuery(`I completed these modules:\n\n${selected.join('\n')}\n\nSuggest three hands‑on project ideas.`, 350);
-                ideasDiv.innerHTML = '<b>🚀 Project Ideas:</b><br>' + txt.replace(/\n/g, '<br>');
+                const projPrompt = `
+You are an expert project mentor.
+Given these course modules:
+${selected.join('\n')}
+
+Suggest exactly five hands-on project ideas that directly apply the skills or concepts from these modules.
+For each project, provide:
+- A clear project title (max 10 words, no symbols)
+- A concise description (max 25 words, plain text, no # or *)
+
+Guidelines:
+• Only use information from the listed modules.
+• Do not add extra commentary or sections.
+• Use plain, clear language.
+• Keep the total response under 180 words.
+• Do not use any markdown or special symbols.
+
+Format strictly:
+1. <Project Title>: <Description>
+2. <Project Title>: <Description>
+3. <Project Title>: <Description>
+4. <Project Title>: <Description>
+5. <Project Title>: <Description>
+`.trim();
+
+                const txt = await cohereQuery(projPrompt, 400);
+                ideasDiv.innerHTML = `
+    <div style="
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 95%;
+        background: #f8f9fa;
+        padding: 18px 32px;
+        border-radius: 10px;
+        border: 1px solid #e0e0e0;
+        box-sizing: border-box;
+        font-family: inherit;
+        font-size: 15px;
+        line-height: 1.7;
+        color: #222;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    ">
+        <b style="display:block;text-align:center;font-size:18px;margin-bottom:12px;">🚀 Project Ideas:</b>
+        <div style="width:100%;max-width:500px;text-align:left;">
+            ${txt
+                        .replace(/[#*]/g, '')
+                        .replace(/\n{2,}/g, '\n') // Remove extra blank lines
+                        .split(/\n+/)
+                        .map(line => line.trim())
+                        .filter(line => line)
+                        .map(line => {
+                            const match = line.match(/^(\d+\.\s*)([^:]+):\s*(.*)$/);
+                            if (match) {
+                                const [_, number, title, desc] = match;
+                                return `<div style="margin-bottom:10px;"><b>${number}${title}</b>: ${desc}</div>`;
+                            }
+                            return `<div style="margin-bottom:10px;">${line}</div>`;
+                        })
+                        .join('')}
+        </div>
+    </div>
+`;
+
             };
 
             /* --- Quiz Me --- */ /* (unchanged – code omitted for brevity) */
