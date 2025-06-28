@@ -447,40 +447,61 @@ In-depth Details
         const analysis = await cohereQuery(analysisPrompt, 650);
         // Custom styled box with equal margin and no markdown symbols
         analysisBox.innerHTML = `
+<div style="
+    margin: 30px auto;
+    max-width: 880px;
+    background: linear-gradient(120deg, #f8fafc 60%, #e3f0ff 100%);
+    padding: 36px 42px;
+    border-radius: 20px;
+    border: 1.5px solid #d0e2ff;
+    box-shadow: 0 8px 28px rgba(80,120,200,0.13);
+    font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+    font-size: 17px;
+    line-height: 1.85;
+    color: #1a237e;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    transition: box-shadow 0.2s;
+">
     <div style="
-        margin: 0 auto;
-        max-width: 98%;
-        background: linear-gradient(120deg, #f8fafc 60%, #e3f0ff 100%);
-        padding: 32px 38px 30px 38px;
-        border-radius: 20px;
-        border: 1.5px solid #d0e2ff;
-        box-shadow: 0 8px 28px rgba(80,120,200,0.13);
-        font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
-        font-size: 17px;
-        line-height: 1.85;
-        color: #1a237e;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        transition: box-shadow 0.2s;
-        margin-bottom: 18px;
+        max-width: 100%;
+        text-align: left;
+        word-break: break-word;
     ">
         <div style="
-            width: 100%;
-            max-width: 740px;
-            margin: 0 auto;
-            text-align: left;
-            word-break: break-word;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 28px;
+            font-size: 24px;
+            letter-spacing: 0.5px;
+            color: #0d47a1;
         ">
-            <div style="font-weight:700;text-align:center;margin-bottom:26px;font-size:24px;letter-spacing:0.5px;color:#0d47a1;">
-                <span style="background:linear-gradient(90deg,#42a5f5,#7e57c2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">📊 Course Analysis</span>
-            </div>
-            <div style="margin-bottom:0;padding:18px 22px;background:#e3f2fd;border-radius:12px;border-left:6px solid #42a5f5;">
-                ${analysis.replace(/[#*]/g, '').replace(/\n/g, '<br>')}
-            </div>
+            <span style="
+                background: linear-gradient(90deg, #42a5f5, #7e57c2);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            ">📊 Course Analysis</span>
+        </div>
+
+        <div style="
+            background: #e3f2fd;
+            padding: 24px 26px;
+            border-radius: 14px;
+            border-left: 6px solid #42a5f5;
+        ">
+            ${analysis
+                .replace(/[#*]/g, '')
+                .replace(/\n{2,}/g, '</p><p>')      // Convert paragraph breaks
+                .replace(/\n/g, ' ')                // Flatten remaining line breaks
+                .replace(/^/, '<p>')                // Wrap in paragraph tag
+                .replace(/$/, '</p>')               // Close last paragraph
+            }
         </div>
     </div>
+</div>
 `;
+
         /***** 2️⃣ Modules List *****/
         const mods = [...document.querySelectorAll('div[data-purpose="curriculum-section-container"] h3')];
         if (!mods.length) {
