@@ -5,10 +5,7 @@
     const API = "http://localhost:8000";
 
     try {
-        // 1  Launch the Python backend (no-op if already running)
         await fetch(API + "/start", { method: "POST" });
-
-        // 2  Poll /latest every second and log to console
         let running = true;
         async function poll() {
             if (!running) return;
@@ -24,7 +21,6 @@
         }
         poll();
 
-        // 3  Press Esc anywhere to stop analysis
         window.addEventListener("keydown", async (e) => {
             if (e.key === "Escape") {
                 running = false;
@@ -36,6 +32,7 @@
         console.error("⚠️ Sentiment-analysis API unreachable:", err);
     }
 })();
+
 
 // ==================================================
 // 📘 Udemy AI Bookmarklet Tool — ARRANGED VERSION
