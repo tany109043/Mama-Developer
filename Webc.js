@@ -1,36 +1,58 @@
 // ====================================================
 // 🔌 Sentiment-Analysis Integration  (NEW block)
 // ====================================================
+// 🔁 Sentiment Monitor inside Bookmarklet UI
 (async () => {
-    const API = "http://localhost:8000";
+  const API = "http://localhost:8000";
+  const TRIGGER_STATES = ["bored", "sleepy", "drowsy", "tired"];
+  const INTERVAL = 10000; // every 10 seconds
 
-    try {
-        await fetch(API + "/start", { method: "POST" });
-        let running = true;
-        async function poll() {
-            if (!running) return;
-            try {
-                const res = await fetch(API + "/latest");
-                const data = await res.json();
-                console.clear();
-                console.table(data);
-            } catch (_) {
-                console.warn("Waiting for sentiment data…");
-            }
-            setTimeout(poll, 1000);
+  // Add emotion display to panel header
+  const moodDisplay = document.createElement('span');
+  moodDisplay.id = 'moodDisplay';
+  moodDisplay.style.cssText = 'margin-left:auto;font-weight:bold;color:#555;';
+  document.querySelector('#udemyAnalysisPanel div').appendChild(moodDisplay);
+
+  // Optional sound for sleepy mood
+  const beep = new Audio("data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQgAAA==");
+
+  try {
+    await fetch(API + "/start", { method: "POST" });
+    let running = true;
+
+    async function poll() {
+      if (!running) return;
+      try {
+        const res = await fetch(API + "/latest");
+        const data = await res.json();
+        const mood = data.emotion || data.sentiment || "Unknown";
+
+        // show in bookmarklet panel
+        moodDisplay.innerHTML = `🤖 Mood: <span style="color:#2196F3">${mood}</span>`;
+
+        // if sleepy or bored → show warning + beep
+        if (TRIGGER_STATES.includes(mood.toLowerCase())) {
+          moodDisplay.innerHTML += `<br><span style="color:#f44336;font-weight:bold;">⚠️ You look ${mood}! Relax or take a meme break.</span>`;
+          beep.play().catch(() => {});
         }
-        poll();
-
-        window.addEventListener("keydown", async (e) => {
-            if (e.key === "Escape") {
-                running = false;
-                await fetch(API + "/stop", { method: "POST" });
-                console.log("Emotion monitor stopped.");
-            }
-        });
-    } catch (err) {
-        console.error("⚠️ Sentiment-analysis API unreachable:", err);
+      } catch (_) {
+        moodDisplay.textContent = "⏳ Analyzing mood...";
+      }
+      setTimeout(poll, INTERVAL);
     }
+
+    poll();
+
+    window.addEventListener("keydown", async (e) => {
+      if (e.key === "Escape") {
+        running = false;
+        await fetch(API + "/stop", { method: "POST" });
+        moodDisplay.textContent = "🛑 Emotion tracking stopped.";
+      }
+    });
+  } catch (err) {
+    console.error("⚠️ Sentiment-analysis API unreachable:", err);
+  }
 })();
 
 
