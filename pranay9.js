@@ -461,25 +461,36 @@ Format strictly:
 
                     const txt = await cohereQuery(projPrompt, 400);
                     ideasDiv.innerHTML = `
-        <div style="
-            margin-left: auto;
-            margin-right: auto;
-            max-width: 95%;
-            background: #f8f9fa;
-            padding: 18px 32px;
-            border-radius: 10px;
-            border: 1px solid #e0e0e0;
-            box-sizing: border-box;
-            text-align: justify;
-            font-family: inherit;
-            font-size: 15px;
-            line-height: 1.7;
-            color: #222;
-        ">
-            <b>🚀 Project Ideas:</b><br>
-            ${txt.replace(/[#*]/g, '').replace(/\n/g, '<br>')}
+    <div style="
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 95%;
+        background: #f8f9fa;
+        padding: 18px 32px;
+        border-radius: 10px;
+        border: 1px solid #e0e0e0;
+        box-sizing: border-box;
+        font-family: inherit;
+        font-size: 15px;
+        line-height: 1.7;
+        color: #222;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    ">
+        <b style="display:block;text-align:center;font-size:18px;margin-bottom:12px;">🚀 Project Ideas:</b>
+        <div style="width:100%;max-width:500px;text-align:left;">
+            ${txt
+                .replace(/[#*]/g, '')
+                .replace(/\n{2,}/g, '\n') // Remove extra blank lines
+                .split(/\n+/)
+                .map(line => line.trim())
+                .filter(line => line)
+                .map(line => `<div style="margin-bottom:10px;">${line}</div>`)
+                .join('')}
         </div>
-    `;
+    </div>
+`;
                 };
 
                 /* --- Quiz Me --- */ /* (unchanged – code omitted for brevity) */
