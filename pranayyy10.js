@@ -523,132 +523,132 @@ In-depth Details
                 document.body.appendChild(overlay);
             }
 
-            quizBtn.onclick = async () => {
-                const chosen = mods
-                    .filter((_, i) => localStorage.getItem('udemyMod-' + i) === '1')
-                    .map(m => m.innerText.trim());
+//             quizBtn.onclick = async () => {
+//                 const chosen = mods
+//                     .filter((_, i) => localStorage.getItem('udemyMod-' + i) === '1')
+//                     .map(m => m.innerText.trim());
 
-                if (!chosen.length) return alert('Select modules first.');
+//                 if (!chosen.length) return alert('Select modules first.');
 
-                overlay.innerHTML = '<h2>📝 Generating quiz…</h2>';
+//                 overlay.innerHTML = '<h2>📝 Generating quiz…</h2>';
 
-                const qPrompt = `
-You are an advanced technical MCQ generator.
+//                 const qPrompt = `
+// You are an advanced technical MCQ generator.
 
-Generate exactly 5 multiple choice questions (MCQs) based ONLY on these modules:
-${chosen.join('\n')}
+// Generate exactly 5 multiple choice questions (MCQs) based ONLY on these modules:
+// ${chosen.join('\n')}
 
-Each question must follow these strict rules:
-• 2 easy, 2 medium, 1 hard
-• 4 options per question: labeled A), B), C), D)
-• Wrap only the correct answer with <span class="answer">Correct Option</span>
-• Do not include any explanations or 'Answer:' lines
-• Use this exact format:
+// Each question must follow these strict rules:
+// • 2 easy, 2 medium, 1 hard
+// • 4 options per question: labeled A), B), C), D)
+// • Wrap only the correct answer with <span class="answer">Correct Option</span>
+// • Do not include any explanations or 'Answer:' lines
+// • Use this exact format:
 
-Q1. What is the question text?
-A) Option A
-B) Option B
-C) Option C
-D) <span class="answer">Correct Option</span>
+// Q1. What is the question text?
+// A) Option A
+// B) Option B
+// C) Option C
+// D) <span class="answer">Correct Option</span>
 
-... and so on until Q5.
+// ... and so on until Q5.
 
-Begin now:
-`;
+// Begin now:
+// `;
 
-                try {
-                    const txt = await cohereQuery(qPrompt, 650);
+//                 try {
+//                     const txt = await cohereQuery(qPrompt, 650);
 
-                    overlay.style.display = 'block';
-                    overlay.innerHTML = `
-        <button id="closeQuiz" style="position:absolute;top:15px;right:20px;font-size:20px;
-        background:#f44336;color:white;border:none;border-radius:4px;padding:4px 12px;cursor:pointer;">✖</button>
-        <h2 style="text-align:center;margin:10px 0 20px">📝 Module Quiz</h2>
-        <form id="quizForm" style="font-size:16px;line-height:1.6"></form>
-        <button id="submitQuiz" style="margin-top:25px;display:block;background:#4caf50;color:white;
-        border:none;padding:10px 20px;border-radius:6px;cursor:pointer;margin-left:auto;margin-right:auto;">Show Answers</button>
-        <div id="scoreBox" style="text-align:center;font-size:18px;margin-top:15px;font-weight:bold;"></div>
-    `;
+//                     overlay.style.display = 'block';
+//                     overlay.innerHTML = `
+//         <button id="closeQuiz" style="position:absolute;top:15px;right:20px;font-size:20px;
+//         background:#f44336;color:white;border:none;border-radius:4px;padding:4px 12px;cursor:pointer;">✖</button>
+//         <h2 style="text-align:center;margin:10px 0 20px">📝 Module Quiz</h2>
+//         <form id="quizForm" style="font-size:16px;line-height:1.6"></form>
+//         <button id="submitQuiz" style="margin-top:25px;display:block;background:#4caf50;color:white;
+//         border:none;padding:10px 20px;border-radius:6px;cursor:pointer;margin-left:auto;margin-right:auto;">Show Answers</button>
+//         <div id="scoreBox" style="text-align:center;font-size:18px;margin-top:15px;font-weight:bold;"></div>
+//     `;
 
-                    document.getElementById('closeQuiz').onclick = () => (overlay.style.display = 'none');
-                    const form = overlay.querySelector('#quizForm');
+//                     document.getElementById('closeQuiz').onclick = () => (overlay.style.display = 'none');
+//                     const form = overlay.querySelector('#quizForm');
 
-                    const blocks = txt.split(/\n(?=Q\d+\.)/).filter(line => line.trim().length > 0);
+//                     const blocks = txt.split(/\n(?=Q\d+\.)/).filter(line => line.trim().length > 0);
 
-                    const correctMap = [];
-                    blocks.forEach((blk, qi) => {
-                        const lines = blk.trim().split('\n').filter(Boolean);
-                        const qLine = lines.shift();
+//                     const correctMap = [];
+//                     blocks.forEach((blk, qi) => {
+//                         const lines = blk.trim().split('\n').filter(Boolean);
+//                         const qLine = lines.shift();
 
-                        const qDiv = document.createElement('div');
-                        qDiv.style.marginBottom = '20px';
-                        qDiv.innerHTML = `<b>${qLine.replace(/^Q\d+[.)]\s*/, '')}</b><br><br>`;
+//                         const qDiv = document.createElement('div');
+//                         qDiv.style.marginBottom = '20px';
+//                         qDiv.innerHTML = `<b>${qLine.replace(/^Q\d+[.)]\s*/, '')}</b><br><br>`;
 
-                        const options = lines.slice(0, 4).map((line) => {
-                            const isCorrect = /<span class=["']answer["']>/.test(line);
-                            const text = line
-                                .replace(/<span class=["']answer["']>/, '')
-                                .replace('</span>', '')
-                                .replace(/^[A-Da-d][).]\s*/, '')
-                                .trim();
-                            return { text, isCorrect };
-                        });
+//                         const options = lines.slice(0, 4).map((line) => {
+//                             const isCorrect = /<span class=["']answer["']>/.test(line);
+//                             const text = line
+//                                 .replace(/<span class=["']answer["']>/, '')
+//                                 .replace('</span>', '')
+//                                 .replace(/^[A-Da-d][).]\s*/, '')
+//                                 .trim();
+//                             return { text, isCorrect };
+//                         });
 
-                        // Shuffle options
-                        for (let i = options.length - 1; i > 0; i--) {
-                            const j = Math.floor(Math.random() * (i + 1));
-                            [options[i], options[j]] = [options[j], options[i]];
-                        }
+//                         // Shuffle options
+//                         for (let i = options.length - 1; i > 0; i--) {
+//                             const j = Math.floor(Math.random() * (i + 1));
+//                             [options[i], options[j]] = [options[j], options[i]];
+//                         }
 
-                        options.forEach((opt, oi) => {
-                            const id = `q${qi}o${oi}`;
-                            const radio = document.createElement('input');
-                            radio.type = 'radio';
-                            radio.name = `q${qi}`;
-                            radio.id = id;
-                            radio.dataset.correct = opt.isCorrect;
-                            const label = document.createElement('label');
-                            label.htmlFor = id;
-                            label.style.cssText =
-                                'display:block;margin:6px 0;padding:6px 10px;border-radius:5px;' +
-                                'cursor:pointer;border:1px solid #ccc;';
-                            label.appendChild(radio);
-                            label.appendChild(document.createTextNode(' ' + opt.text));
-                            qDiv.appendChild(label);
-                            if (opt.isCorrect) correctMap[qi] = label;
-                        });
+//                         options.forEach((opt, oi) => {
+//                             const id = `q${qi}o${oi}`;
+//                             const radio = document.createElement('input');
+//                             radio.type = 'radio';
+//                             radio.name = `q${qi}`;
+//                             radio.id = id;
+//                             radio.dataset.correct = opt.isCorrect;
+//                             const label = document.createElement('label');
+//                             label.htmlFor = id;
+//                             label.style.cssText =
+//                                 'display:block;margin:6px 0;padding:6px 10px;border-radius:5px;' +
+//                                 'cursor:pointer;border:1px solid #ccc;';
+//                             label.appendChild(radio);
+//                             label.appendChild(document.createTextNode(' ' + opt.text));
+//                             qDiv.appendChild(label);
+//                             if (opt.isCorrect) correctMap[qi] = label;
+//                         });
 
-                        form.appendChild(qDiv);
-                    });
+//                         form.appendChild(qDiv);
+//                     });
 
-                    overlay.querySelector('#submitQuiz').onclick = () => {
-                        let right = 0;
-                        correctMap.forEach((correctLabel, qi) => {
-                            const chosen = form.querySelector(`input[name="q${qi}"]:checked`);
-                            if (chosen) {
-                                const chosenLabel = form.querySelector(`label[for="${chosen.id}"]`);
-                                if (chosen.dataset.correct === 'true') {
-                                    chosenLabel.style.background = '#c8e6c9';
-                                    right++;
-                                } else {
-                                    chosenLabel.style.background = '#ffcdd2';
-                                    correctLabel.style.background = '#e0f2f1';
-                                }
-                            } else {
-                                correctLabel.style.background = '#e0f2f1';
-                            }
-                        });
-                        const pct = Math.round((right / correctMap.length) * 100);
-                        addTokens(right);
-                        overlay.querySelector('#scoreBox').textContent =
-                            `🎯 You scored ${right}/${correctMap.length} (${pct}%)`;
-                    };
-                } catch (err) {
-                    overlay.innerHTML =
-                        '<p style="color:red;text-align:center">❌ Failed to generate quiz.</p>';
-                    console.error(err);
-                }
-            };
+//                     overlay.querySelector('#submitQuiz').onclick = () => {
+//                         let right = 0;
+//                         correctMap.forEach((correctLabel, qi) => {
+//                             const chosen = form.querySelector(`input[name="q${qi}"]:checked`);
+//                             if (chosen) {
+//                                 const chosenLabel = form.querySelector(`label[for="${chosen.id}"]`);
+//                                 if (chosen.dataset.correct === 'true') {
+//                                     chosenLabel.style.background = '#c8e6c9';
+//                                     right++;
+//                                 } else {
+//                                     chosenLabel.style.background = '#ffcdd2';
+//                                     correctLabel.style.background = '#e0f2f1';
+//                                 }
+//                             } else {
+//                                 correctLabel.style.background = '#e0f2f1';
+//                             }
+//                         });
+//                         const pct = Math.round((right / correctMap.length) * 100);
+//                         addTokens(right);
+//                         overlay.querySelector('#scoreBox').textContent =
+//                             `🎯 You scored ${right}/${correctMap.length} (${pct}%)`;
+//                     };
+//                 } catch (err) {
+//                     overlay.innerHTML =
+//                         '<p style="color:red;text-align:center">❌ Failed to generate quiz.</p>';
+//                     console.error(err);
+//                 }
+//             };
 
             /* --- Project Suggestions --- */
             const ideasDiv = document.createElement('div');
