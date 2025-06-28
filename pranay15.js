@@ -350,12 +350,17 @@ Begin:`;
                         // Parse the Cohere output for 5 questions
                         const blocks = txt.split(/Q\d+\./g).filter(Boolean).slice(0, 5);
 
-                        const correctMap = [];
-                        blocks.forEach((blk, qi) => {
-                            // Extract question and options
+                        // Only keep well-formed questions (with 5 lines: question + 4 options, and one marked [CORRECT])
+                        const parsedQuestions = blocks.map((blk) => {
                             const lines = blk.trim().split('\n').filter(Boolean);
-                            if (lines.length < 5) return; // skip malformed
+                            if (lines.length < 5) return null;
+                            const options = lines.slice(1, 5).map(line => /\[CORRECT\]/i.test(line));
+                            if (options.filter(Boolean).length !== 1) return null;
+                            return lines;
+                        }).filter(Boolean);
 
+                        const correctMap = [];
+                        parsedQuestions.forEach((lines, qi) => {
                             const qLine = lines[0].replace(/^\s*|\s*$/g, '');
                             const qDiv = document.createElement('div');
                             qDiv.style.marginBottom = '20px';
@@ -397,6 +402,7 @@ Begin:`;
                         overlay.querySelector('#submitQuiz').onclick = (e) => {
                             e.preventDefault();
                             let right = 0;
+                            let total = correctMap.length;
                             correctMap.forEach((correctLabel, qi) => {
                                 const chosen = form.querySelector(`input[name="q${qi}"]:checked`);
                                 if (chosen) {
@@ -412,10 +418,10 @@ Begin:`;
                                     correctLabel.style.background = '#e0f2f1';
                                 }
                             });
-                            const pct = Math.round((right / correctMap.length) * 100);
+                            const pct = total > 0 ? Math.round((right / total) * 100) : 0;
                             addTokens(right);
                             overlay.querySelector('#scoreBox').textContent =
-                                `🎯 You scored ${right}/${correctMap.length} (${pct}%)`;
+                                `🎯 You scored ${right}/${total} (${pct}%)`;
                         };
                     } catch (err) {
                         overlay.innerHTML =
