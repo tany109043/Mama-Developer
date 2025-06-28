@@ -201,37 +201,64 @@
 
         try {
             /***** 1️⃣ Course Analysis *****/
-            const analysisPrompt = `You are an educational content analyst.
+            const analysisPrompt = `You are a professional course analyst.
 
-Analyze the Udemy course below and return a clean, structured text summary. Do NOT use Markdown, bullet points, hashtags, or special symbols.
+Your task is to analyze the following Udemy course and provide an in-depth, structured textual summary. The output must use plain text formatting — no Markdown, no bullet points, and no special symbols. The layout should have clean visual alignment, and text blocks should have equal left and right margins. Use approximately 100–120 characters per line for neat readability.
 
 Course Title: ${title}  
 Course URL: ${url}
 
-Return the analysis using this plain text template exactly:
+Return the analysis using the EXACT following format:
 
-Modules (up to 8)
-[Module 1 Title] — [1-sentence summary of key skill]
-[Module 2 Title] — [1-sentence summary of key skill]
-...
-[Module 8 Title] — [1-sentence summary of key skill]
+===============================================================
+                         COURSE ANALYSIS REPORT
+===============================================================
 
-Drawbacks (up to 3)
-Drawback 1: [12 words or less]
-Drawback 2: [12 words or less]
-Drawback 3: [12 words or less]
+Course Title: [Insert Title Here]  
+Instructor(s): [Name(s)]  
+Skill Level: [Beginner / Intermediate / Advanced]  
+Total Duration: [xx hours]  
+Last Updated: [Month, Year]  
+Language: [Primary language]
 
-Learning Outcomes (5 total)
-1. [Outcome 1 — max 12 words]
-2. [Outcome 2 — max 12 words]
-3. [Outcome 3 — max 12 words]
-4. [Outcome 4 — max 12 words]
-5. [Outcome 5 — max 12 words]
+---------------------------------------------------------------
+Modules Overview
+---------------------------------------------------------------
+[Module Title 1]  
+[Detailed 2–3 sentence summary of the key concepts and skills taught in this module.]
+
+[Module Title 2]  
+[Detailed 2–3 sentence summary of the key concepts and skills taught in this module.]
+
+...[Up to 8 modules]
+
+---------------------------------------------------------------
+Drawbacks
+---------------------------------------------------------------
+1. [Specific, factual limitation #1 — max 20 words]  
+2. [Specific, factual limitation #2 — max 20 words]  
+3. [Specific, factual limitation #3 — max 20 words]
+
+---------------------------------------------------------------
+Learning Outcomes
+---------------------------------------------------------------
+By the end of this course, students will be able to:
+
+1. [Concrete learning goal #1 — up to 20 words]  
+2. [Concrete learning goal #2 — up to 20 words]  
+3. [Concrete learning goal #3 — up to 20 words]  
+4. [Concrete learning goal #4 — up to 20 words]  
+5. [Concrete learning goal #5 — up to 20 words]
+
+===============================================================
 
 Rules:
-- Keep total text under 180 words
-- Use clear, plain English — no filler, no hype
-- Follow the structure exactly — no extra text or headings`;
+- Use plain, human-readable language (no fluff or promotional language)  
+- Maintain clear alignment and padding on all lines  
+- Keep the total response under 350 words  
+- Do not add summaries, suggestions, or extra formatting
+`;
+
 
             const analysis = await cohereQuery(analysisPrompt, 500);
             analysisBox.innerHTML = '<b>📘 Course Analysis:</b><br><br>' + analysis.replace(/\n/g, '<br>');
