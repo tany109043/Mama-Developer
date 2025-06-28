@@ -1100,10 +1100,10 @@ Format strictly:
         margin-left: auto;
         margin-right: auto;
         max-width: 95%;
-        background: #f8f9fa;
+        background: linear-gradient(135deg, #f8fffa 0%, #e3f0ff 100%);
         padding: 18px 32px;
         border-radius: 10px;
-        border: 1px solid #e0e0e0;
+        border: 1px solid #b6c7e6;
         box-sizing: border-box;
         font-family: inherit;
         font-size: 15px;
@@ -1112,24 +1112,25 @@ Format strictly:
         display: flex;
         flex-direction: column;
         align-items: center;
+        box-shadow: 0 4px 18px rgba(80,120,200,0.10);
     ">
         <b style="display:block;text-align:center;font-size:18px;margin-bottom:12px;">🚀 Project Ideas:</b>
         <div style="width:100%;max-width:500px;text-align:left;">
             ${txt
-                        .replace(/[#*]/g, '')
-                        .replace(/\n{2,}/g, '\n') // Remove extra blank lines
-                        .split(/\n+/)
-                        .map(line => line.trim())
-                        .filter(line => line)
-                        .map(line => {
-                            const match = line.match(/^(\d+\.\s*)([^:]+):\s*(.*)$/);
-                            if (match) {
-                                const [_, number, title, desc] = match;
-                                return `<div style="margin-bottom:10px;"><b>${number}${title}</b>: ${desc}</div>`;
-                            }
-                            return `<div style="margin-bottom:10px;">${line}</div>`;
-                        })
-                        .join('')}
+                .replace(/[#*]/g, '')
+                .replace(/\n{2,}/g, '\n') // Remove extra blank lines
+                .split(/\n+/)
+                .map(line => line.trim())
+                .filter(line => line)
+                .map(line => {
+                    const match = line.match(/^(\d+\.\s*)([^:]+):\s*(.*)$/);
+                    if (match) {
+                        const [_, number, title, desc] = match;
+                        return `<div style="margin-bottom:10px;"><b>${number}${title}</b>: ${desc}</div>`;
+                    }
+                    return `<div style="margin-bottom:10px;">${line}</div>`;
+                })
+                .join('')}
         </div>
     </div>
 `;
