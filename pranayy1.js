@@ -501,53 +501,60 @@ In-depth Details
 
                 overlay.innerHTML = '<h2>📝 Generating quiz…</h2>';
 
-                const qPrompt =
-                    `You are an advanced technical‑course quiz generator.\n` +
-                    `Generate EXACTLY 5 high‑quality MCQs based ONLY on these modules:\n` +
-                    `${chosen.join('\n')}\n\n` +
-                    `Rules:\n` +
-                    `• 2 easy, 2 medium, 1 hard\n` +
-                    `• 4 options (A–D); exactly ONE correct\n` +
-                    `• Wrap the correct option in <span class="answer"></span>\n` +
-                    `• Format strictly:\n` +
-                    `Q1. <question>\nA) <opt>\nB) <opt>\nC) <opt>\nD) <opt>\n\n` +
-                    `Begin:`;
+                const qPrompt = `
+You are an advanced technical MCQ generator.
+
+Generate exactly 5 multiple choice questions (MCQs) based ONLY on these modules:
+${chosen.join('\n')}
+
+Each question must follow these strict rules:
+• 2 easy, 2 medium, 1 hard
+• 4 options per question: labeled A), B), C), D)
+• Wrap only the correct answer with <span class="answer">Correct Option</span>
+• Do not include any explanations or 'Answer:' lines
+• Use this exact format:
+
+Q1. What is the question text?
+A) Option A
+B) Option B
+C) Option C
+D) <span class="answer">Correct Option</span>
+
+... and so on until Q5.
+
+Begin now:
+`;
 
                 try {
                     const txt = await cohereQuery(qPrompt, 650);
+
                     overlay.style.display = 'block';
-                    overlay.innerHTML =
-                        '<button id="closeQuiz" style="position:absolute;top:15px;right:20px;font-size:20px;' +
-                        'background:#f44336;color:white;border:none;border-radius:4px;padding:4px 12px;cursor:pointer;">✖</button>' +
-                        '<h2 style="text-align:center;margin:10px 0 20px">📝 Module Quiz</h2>' +
-                        '<form id="quizForm" style="font-size:16px;line-height:1.6"></form>' +
-                        '<button id="submitQuiz" style="margin-top:25px;display:block;background:#4caf50;color:white;' +
-                        'border:none;padding:10px 20px;border-radius:6px;cursor:pointer;margin-left:auto;margin-right:auto;">Show Answers</button>' +
-                        '<div id="scoreBox" style="text-align:center;font-size:18px;margin-top:15px;font-weight:bold;"></div>';
+                    overlay.innerHTML = `
+        <button id="closeQuiz" style="position:absolute;top:15px;right:20px;font-size:20px;
+        background:#f44336;color:white;border:none;border-radius:4px;padding:4px 12px;cursor:pointer;">✖</button>
+        <h2 style="text-align:center;margin:10px 0 20px">📝 Module Quiz</h2>
+        <form id="quizForm" style="font-size:16px;line-height:1.6"></form>
+        <button id="submitQuiz" style="margin-top:25px;display:block;background:#4caf50;color:white;
+        border:none;padding:10px 20px;border-radius:6px;cursor:pointer;margin-left:auto;margin-right:auto;">Show Answers</button>
+        <div id="scoreBox" style="text-align:center;font-size:18px;margin-top:15px;font-weight:bold;"></div>
+    `;
 
                     document.getElementById('closeQuiz').onclick = () => (overlay.style.display = 'none');
                     const form = overlay.querySelector('#quizForm');
 
-                    /* --- split Cohere output into 5 blocks --- */
-                    const blocks = txt.match(/(?:Q?\d+[.)])[\s\S]*?(?=(?:Q?\d+[.)])|$)/g) || [];
+                    const blocks = txt.split(/\n(?=Q\d+\.)/).filter(line => line.trim().length > 0);
 
                     const correctMap = [];
                     blocks.forEach((blk, qi) => {
                         const lines = blk.trim().split('\n').filter(Boolean);
-
-                        /* NEW — fallback for “Answer: X” format */
-                        const answerLetter = (blk.match(/Answer\s*[:\-]?\s*([A-D])/i) || [])[1]?.toUpperCase() || null;
-
                         const qLine = lines.shift();
+
                         const qDiv = document.createElement('div');
                         qDiv.style.marginBottom = '20px';
-                        qDiv.innerHTML = `<b>${qLine.replace(/^Q?\d+[.)]\s*/, '')}</b><br><br>`;
+                        qDiv.innerHTML = `<b>${qLine.replace(/^Q\d+[.)]\s*/, '')}</b><br><br>`;
 
-                        /* extract A‑D */
                         const options = lines.slice(0, 4).map((line) => {
-                            const letter = line.trim().charAt(0).toUpperCase();          // A/B/C/D
-                            const isCorrect = /class=["']answer["']/.test(line) ||          // span‑tag way
-                                (answerLetter && letter === answerLetter);     // Answer: X fallback
+                            const isCorrect = /<span class=["']answer["']>/.test(line);
                             const text = line
                                 .replace(/<span class=["']answer["']>/, '')
                                 .replace('</span>', '')
@@ -556,7 +563,7 @@ In-depth Details
                             return { text, isCorrect };
                         });
 
-                        /* shuffle so correct option isn’t always fixed */
+                        // Shuffle options
                         for (let i = options.length - 1; i > 0; i--) {
                             const j = Math.floor(Math.random() * (i + 1));
                             [options[i], options[j]] = [options[j], options[i]];
@@ -579,6 +586,7 @@ In-depth Details
                             qDiv.appendChild(label);
                             if (opt.isCorrect) correctMap[qi] = label;
                         });
+
                         form.appendChild(qDiv);
                     });
 
@@ -873,36 +881,36 @@ Only output the JSON — no extra text.
     };
 
 
-/*************************************************
- *  🗓️ DAILY QUESTION HANDLER (logic reused)
- *************************************************/
-dqBtn.onclick = async () => {
-    const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
-    const qKey = 'dailyQ-data';
-    const dKey = 'dailyQ-date';
-    const aKey = 'dailyQ-done';
+    /*************************************************
+     *  🗓️ DAILY QUESTION HANDLER (logic reused)
+     *************************************************/
+    dqBtn.onclick = async () => {
+        const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+        const qKey = 'dailyQ-data';
+        const dKey = 'dailyQ-date';
+        const aKey = 'dailyQ-done';
 
-    // ✅ Disable btn if already done
-    if (localStorage.getItem(aKey) === today) {
-        dqBtn.disabled = true;
-        dqBtn.style.background = '#ccc';
-        dqBtn.textContent = '✅ Attempted';
-        return;
-    }
+        // ✅ Disable btn if already done
+        if (localStorage.getItem(aKey) === today) {
+            dqBtn.disabled = true;
+            dqBtn.style.background = '#ccc';
+            dqBtn.textContent = '✅ Attempted';
+            return;
+        }
 
-    // helper to render the stored or freshly fetched question
-    const renderQuestion = (qBlock) => {
-        // build overlay (1-per-session)
-        let dqOver = document.getElementById('dailyQOverlay');
-        if (!dqOver) {
-            dqOver = document.createElement('div');
-            dqOver.id = 'dailyQOverlay';
-            dqOver.style.cssText =
-                'display:flex;flex-direction:column;align-items:center;position:fixed;top:10%;left:50%;' +
-                'transform:translateX(-50%);width:500px;max-width:90%;padding:22px;background:#fff;' +
-                'border:5px solid #3f51b5;border-radius:14px;z-index:10000;box-shadow:0 10px 25px rgba(0,0,0,.35);' +
-                'font-family:sans-serif;';
-            dqOver.innerHTML = `
+        // helper to render the stored or freshly fetched question
+        const renderQuestion = (qBlock) => {
+            // build overlay (1-per-session)
+            let dqOver = document.getElementById('dailyQOverlay');
+            if (!dqOver) {
+                dqOver = document.createElement('div');
+                dqOver.id = 'dailyQOverlay';
+                dqOver.style.cssText =
+                    'display:flex;flex-direction:column;align-items:center;position:fixed;top:10%;left:50%;' +
+                    'transform:translateX(-50%);width:500px;max-width:90%;padding:22px;background:#fff;' +
+                    'border:5px solid #3f51b5;border-radius:14px;z-index:10000;box-shadow:0 10px 25px rgba(0,0,0,.35);' +
+                    'font-family:sans-serif;';
+                dqOver.innerHTML = `
                 <button style="position:absolute;top:8px;right:12px;font-size:16px;border:none;background:#f44336;
                         color:white;padding:4px 10px;border-radius:4px;cursor:pointer;"
                         onclick="this.parentElement.remove()">✖</button>
@@ -913,81 +921,81 @@ dqBtn.onclick = async () => {
                         border:none;border-radius:5px;cursor:pointer;">Submit</button>
                 <div id="dqResult" style="margin-top:14px;font-weight:bold;text-align:center;"></div>
             `;
-            document.body.appendChild(dqOver);
+                document.body.appendChild(dqOver);
+            }
+
+            // fill form
+            const form = dqOver.querySelector('#dqForm');
+            form.innerHTML = '';
+            const { question, options } = qBlock;
+            const correctIdx = options.findIndex(o => o.isCorrect);
+
+            const qEl = document.createElement('div');
+            qEl.style.fontWeight = 'bold';
+            qEl.textContent = question;
+            form.appendChild(qEl);
+
+            options.forEach((opt, i) => {
+                const id = `dqo${i}`;
+                const wrap = document.createElement('label');
+                wrap.style.cssText =
+                    'display:block;margin:6px 0;padding:6px 9px;border-radius:5px;border:1px solid #ccc;cursor:pointer;';
+                wrap.innerHTML = `<input type="radio" name="dq" id="${id}" value="${i}" style="margin-right:6px;"> ${opt.text}`;
+                form.appendChild(wrap);
+            });
+
+            let timeLeft = 120;
+            const timerBox = dqOver.querySelector('#dqTimer');
+            timerBox.textContent = `⏳ Time left: 2:00`;
+            const tick = setInterval(() => {
+                --timeLeft;
+                const min = Math.floor(timeLeft / 60).toString();
+                const sec = (timeLeft % 60).toString().padStart(2, '0');
+                timerBox.textContent = `⏳ Time left: ${min}:${sec}`;
+                if (timeLeft <= 0) {
+                    clearInterval(tick);
+                    dqOver.querySelector('#dqSubmit').click();
+                }
+            }, 1000);
+
+            dqOver.querySelector('#dqSubmit').onclick = () => {
+                clearInterval(tick);
+                const chosen = form.querySelector('input[name="dq"]:checked');
+                const resBox = dqOver.querySelector('#dqResult');
+                if (!chosen) {
+                    resBox.textContent = '❗ No option selected!';
+                    return;
+                }
+                const idx = Number(chosen.value);
+                if (idx === correctIdx) {
+                    resBox.textContent = '✅ Correct!';
+                    resBox.style.color = '#2e7d32';
+                    addTokens(10); // ✅ reward tokens
+                } else {
+                    resBox.textContent = `❌ Wrong. Correct answer: ${options[correctIdx].text}`;
+                    resBox.style.color = '#c62828';
+                }
+                dqOver.querySelectorAll('input').forEach(inp => inp.disabled = true);
+                dqOver.querySelector('#dqSubmit').disabled = true;
+
+                // ✅ Mark as attempted
+                localStorage.setItem(aKey, today);
+                dqBtn.disabled = true;
+                dqBtn.style.background = '#ccc';
+                dqBtn.textContent = '✅ Attempted';
+            };
+        };
+
+        if (localStorage.getItem(dKey) === today) {
+            const stored = JSON.parse(localStorage.getItem(qKey) || '{}');
+            return renderQuestion(stored);
         }
 
-        // fill form
-        const form = dqOver.querySelector('#dqForm');
-        form.innerHTML = '';
-        const { question, options } = qBlock;
-        const correctIdx = options.findIndex(o => o.isCorrect);
-
-        const qEl = document.createElement('div');
-        qEl.style.fontWeight = 'bold';
-        qEl.textContent = question;
-        form.appendChild(qEl);
-
-        options.forEach((opt, i) => {
-            const id = `dqo${i}`;
-            const wrap = document.createElement('label');
-            wrap.style.cssText =
-                'display:block;margin:6px 0;padding:6px 9px;border-radius:5px;border:1px solid #ccc;cursor:pointer;';
-            wrap.innerHTML = `<input type="radio" name="dq" id="${id}" value="${i}" style="margin-right:6px;"> ${opt.text}`;
-            form.appendChild(wrap);
-        });
-
-        let timeLeft = 120;
-        const timerBox = dqOver.querySelector('#dqTimer');
-        timerBox.textContent = `⏳ Time left: 2:00`;
-        const tick = setInterval(() => {
-            --timeLeft;
-            const min = Math.floor(timeLeft / 60).toString();
-            const sec = (timeLeft % 60).toString().padStart(2, '0');
-            timerBox.textContent = `⏳ Time left: ${min}:${sec}`;
-            if (timeLeft <= 0) {
-                clearInterval(tick);
-                dqOver.querySelector('#dqSubmit').click();
-            }
-        }, 1000);
-
-        dqOver.querySelector('#dqSubmit').onclick = () => {
-            clearInterval(tick);
-            const chosen = form.querySelector('input[name="dq"]:checked');
-            const resBox = dqOver.querySelector('#dqResult');
-            if (!chosen) {
-                resBox.textContent = '❗ No option selected!';
-                return;
-            }
-            const idx = Number(chosen.value);
-            if (idx === correctIdx) {
-                resBox.textContent = '✅ Correct!';
-                resBox.style.color = '#2e7d32';
-                addTokens(10); // ✅ reward tokens
-            } else {
-                resBox.textContent = `❌ Wrong. Correct answer: ${options[correctIdx].text}`;
-                resBox.style.color = '#c62828';
-            }
-            dqOver.querySelectorAll('input').forEach(inp => inp.disabled = true);
-            dqOver.querySelector('#dqSubmit').disabled = true;
-
-            // ✅ Mark as attempted
-            localStorage.setItem(aKey, today);
+        try {
+            dqBtn.textContent = '⏳ Creating…';
             dqBtn.disabled = true;
-            dqBtn.style.background = '#ccc';
-            dqBtn.textContent = '✅ Attempted';
-        };
-    };
 
-    if (localStorage.getItem(dKey) === today) {
-        const stored = JSON.parse(localStorage.getItem(qKey) || '{}');
-        return renderQuestion(stored);
-    }
-
-    try {
-        dqBtn.textContent = '⏳ Creating…';
-        dqBtn.disabled = true;
-
-        const prompt = `
+            const prompt = `
 Generate EXACTLY one aptitude multiple-choice question in the domain of logical reasoning or quantitative aptitude.
 
 • Return in this format (no extra commentary):
@@ -1001,40 +1009,40 @@ Answer: <capital letter of correct option>
 Use real aptitude style, medium difficulty.
         `.trim();
 
-        const raw = await cohereQuery(prompt, 180);
-        dqBtn.textContent = '🗓️ Daily Question';
-        dqBtn.disabled = false;
+            const raw = await cohereQuery(prompt, 180);
+            dqBtn.textContent = '🗓️ Daily Question';
+            dqBtn.disabled = false;
 
-        const qMatch = raw.match(/^Q\)?\s*(.*)$/im);
-        const oMatch = raw.match(/^[A-D]\).*/gim);
-        const aMatch = raw.match(/Answer:\s*([A-D])/i);
-        if (!qMatch || !oMatch || oMatch.length !== 4 || !aMatch) {
-            return alert('⚠️ Could not parse question from Cohere.');
+            const qMatch = raw.match(/^Q\)?\s*(.*)$/im);
+            const oMatch = raw.match(/^[A-D]\).*/gim);
+            const aMatch = raw.match(/Answer:\s*([A-D])/i);
+            if (!qMatch || !oMatch || oMatch.length !== 4 || !aMatch) {
+                return alert('⚠️ Could not parse question from Cohere.');
+            }
+
+            const qBlock = {
+                question: qMatch[1].trim(),
+                options: oMatch.map((l, i) => ({
+                    text: l.replace(/^[A-D]\)\s*/, '').trim(),
+                    isCorrect: 'ABCD'[i] === aMatch[1].toUpperCase()
+                }))
+            };
+
+            localStorage.setItem(qKey, JSON.stringify(qBlock));
+            localStorage.setItem(dKey, today);
+
+            renderQuestion(qBlock);
+        } catch (err) {
+            dqBtn.textContent = '🗓️ Daily Question';
+            dqBtn.disabled = false;
+            console.error(err);
+            alert('❌ Error generating daily question – see console.');
         }
+    };
 
-        const qBlock = {
-            question: qMatch[1].trim(),
-            options: oMatch.map((l, i) => ({
-                text: l.replace(/^[A-D]\)\s*/, '').trim(),
-                isCorrect: 'ABCD'[i] === aMatch[1].toUpperCase()
-            }))
-        };
+    /*************************************************
+     *  Attach primary button to page
+     *************************************************/
+    document.body.appendChild(mainBtn);
 
-        localStorage.setItem(qKey, JSON.stringify(qBlock));
-        localStorage.setItem(dKey, today);
-
-        renderQuestion(qBlock);
-    } catch (err) {
-        dqBtn.textContent = '🗓️ Daily Question';
-        dqBtn.disabled = false;
-        console.error(err);
-        alert('❌ Error generating daily question – see console.');
-    }
-};
-
-/*************************************************
- *  Attach primary button to page
- *************************************************/
-document.body.appendChild(mainBtn);
-
-}) ();
+})();
