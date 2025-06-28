@@ -826,7 +826,6 @@ Only output the JSON — no extra text.
             memeBtn.textContent = '🎭';
             memeBtn.disabled = false;
             memeBtn.appendChild(window.tokenBadge);
-            addTokens(-5);
         }
         const { top, bottom, category } = parsed;
         const templateId = getTemplateByCategory(category);
@@ -870,6 +869,7 @@ Only output the JSON — no extra text.
         pop.innerHTML = `<strong>🎉 Meme Unlocked!</strong><br><img src="${memeJson.data.url}" style="max-width:100%;border-radius:6px;margin-top:10px"/><br><button style="margin-top:8px;padding:4px 10px;border:none;background:#f44336;color:#fff;border-radius:4px;cursor:pointer;">Close</button>`;
         pop.querySelector("button").onclick = () => pop.remove();
         document.body.appendChild(pop);
+        addTokens(-5);
     };
 
 
