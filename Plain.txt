@@ -1,0 +1,1 @@
+javascript:(async()=>{await import('https://cdn.jsdelivr.net/gh/tany109043/Mama-Developer@main/shantnu.js?t=' + Date.now())})();
