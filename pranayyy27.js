@@ -565,16 +565,12 @@ In-depth Details
                 'font-size:13px',
                 'box-shadow:0 1px 4px rgba(67,233,123,0.08)',
                 'cursor:pointer',
-                'transition:transform 0.12s,box-shadow 0.12s,background 0.12s'
+                'transition:background 0.15s'
             ].join(';');
             projBtn.onmouseover = () => {
-                projBtn.style.transform = 'scale(1.08)';
-                projBtn.style.boxShadow = '0 2px 8px rgba(67,233,123,0.18)';
                 projBtn.style.background = 'linear-gradient(90deg,#38f9d7 0%,#43e97b 100%)';
             };
             projBtn.onmouseout = () => {
-                projBtn.style.transform = 'scale(1)';
-                projBtn.style.boxShadow = '0 1px 4px rgba(67,233,123,0.08)';
                 projBtn.style.background = 'linear-gradient(90deg,#43e97b 0%,#38f9d7 100%)';
             };
             btnRow.appendChild(projBtn);
@@ -591,16 +587,12 @@ In-depth Details
                 'font-size:13px',
                 'box-shadow:0 1px 4px rgba(255,215,0,0.08)',
                 'cursor:pointer',
-                'transition:transform 0.12s,box-shadow 0.12s,background 0.12s'
+                'transition:background 0.15s'
             ].join(';');
             quizBtn.onmouseover = () => {
-                quizBtn.style.transform = 'scale(1.08)';
-                quizBtn.style.boxShadow = '0 2px 8px rgba(255,215,0,0.18)';
                 quizBtn.style.background = 'linear-gradient(90deg,#ffd200 0%,#f7971e 100%)';
             };
             quizBtn.onmouseout = () => {
-                quizBtn.style.transform = 'scale(1)';
-                quizBtn.style.boxShadow = '0 1px 4px rgba(255,215,0,0.08)';
                 quizBtn.style.background = 'linear-gradient(90deg,#f7971e 0%,#ffd200 100%)';
             };
             btnRow.appendChild(quizBtn);
