@@ -1378,9 +1378,9 @@ function getRandomQuestions(arr, n) {
     return shuffled.slice(0, n);
 }
 
-// ...inside your quizBtn.onclick handler, replace the Cohere logic with:
+// Replace previous "Quiz Me" logic with this:
 quizBtn.onclick = async () => {
-    // You can detect the course by title or URL, here we use SQL as an example
+    // Detect SQL course by title or URL
     if (/sql/i.test(title)) {
         const chosenQuestions = getRandomQuestions(SQL_QUESTIONS, 5);
 
@@ -1452,6 +1452,6 @@ quizBtn.onclick = async () => {
         return;
     }
 
-    // ...fallback to Cohere or other logic for non-SQL courses
-    // ...existing code...
+    // Fallback for other courses (optional: add more course checks or fallback logic)
+    alert('No quiz available for this course.');
 };
