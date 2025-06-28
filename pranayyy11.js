@@ -522,133 +522,356 @@ In-depth Details
                     'box-shadow:0 8px 25px rgba(0,0,0,.4);font-family:sans-serif;';
                 document.body.appendChild(overlay);
             }
+            const sqlQuestions = [
+                {
+                    question: "Which SQL statement is used to extract data from a database?",
+                    options: [
+                        { text: "GET", isCorrect: false },
+                        { text: "OPEN", isCorrect: false },
+                        { text: "SELECT", isCorrect: true },
+                        { text: "EXTRACT", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What does SQL stand for?",
+                    options: [
+                        { text: "Structured Query Language", isCorrect: true },
+                        { text: "System Question Language", isCorrect: false },
+                        { text: "Sequential Query Logic", isCorrect: false },
+                        { text: "Standard Question Language", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Which SQL clause is used to filter records?",
+                    options: [
+                        { text: "ORDER BY", isCorrect: false },
+                        { text: "WHERE", isCorrect: true },
+                        { text: "GROUP BY", isCorrect: false },
+                        { text: "HAVING", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Which command is used to add new data?",
+                    options: [
+                        { text: "APPEND", isCorrect: false },
+                        { text: "INSERT INTO", isCorrect: true },
+                        { text: "ADD RECORD", isCorrect: false },
+                        { text: "UPDATE", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What does the COUNT() function do?",
+                    options: [
+                        { text: "Adds numbers", isCorrect: false },
+                        { text: "Counts rows", isCorrect: true },
+                        { text: "Calculates average", isCorrect: false },
+                        { text: "Sorts records", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Which SQL keyword is used to sort results?",
+                    options: [
+                        { text: "SORT", isCorrect: false },
+                        { text: "ORDER BY", isCorrect: true },
+                        { text: "GROUP", isCorrect: false },
+                        { text: "ARRANGE", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Which clause is used to remove duplicate rows?",
+                    options: [
+                        { text: "UNIQUE", isCorrect: false },
+                        { text: "REMOVE DUPLICATES", isCorrect: false },
+                        { text: "DISTINCT", isCorrect: true },
+                        { text: "FILTER", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Which function is used to find the highest value?",
+                    options: [
+                        { text: "TOP()", isCorrect: false },
+                        { text: "HIGHEST()", isCorrect: false },
+                        { text: "MAX()", isCorrect: true },
+                        { text: "GREATEST()", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Which command is used to change existing data?",
+                    options: [
+                        { text: "ALTER", isCorrect: false },
+                        { text: "MODIFY", isCorrect: false },
+                        { text: "UPDATE", isCorrect: true },
+                        { text: "CHANGE", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Which SQL keyword is used to delete data?",
+                    options: [
+                        { text: "REMOVE", isCorrect: false },
+                        { text: "DELETE", isCorrect: true },
+                        { text: "DROP", isCorrect: false },
+                        { text: "TRUNCATE", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Which SQL command is used to remove a table?",
+                    options: [
+                        { text: "DELETE TABLE", isCorrect: false },
+                        { text: "DROP TABLE", isCorrect: true },
+                        { text: "REMOVE TABLE", isCorrect: false },
+                        { text: "TRUNCATE TABLE", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is the purpose of the GROUP BY clause?",
+                    options: [
+                        { text: "To sort the result set", isCorrect: false },
+                        { text: "To group rows sharing the same values", isCorrect: true },
+                        { text: "To filter records", isCorrect: false },
+                        { text: "To update grouped data", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is the correct syntax to create a table?",
+                    options: [
+                        { text: "MAKE TABLE table_name (...)", isCorrect: false },
+                        { text: "BUILD TABLE table_name (...)", isCorrect: false },
+                        { text: "CREATE TABLE table_name (...)", isCorrect: true },
+                        { text: "CONSTRUCT table_name (...)", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Which operator is used to check for a range of values?",
+                    options: [
+                        { text: "WITHIN", isCorrect: false },
+                        { text: "BETWEEN", isCorrect: true },
+                        { text: "IN", isCorrect: false },
+                        { text: "RANGE", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "How do you rename a column in SQL?",
+                    options: [
+                        { text: "CHANGE COLUMN", isCorrect: false },
+                        { text: "MODIFY COLUMN", isCorrect: false },
+                        { text: "RENAME COLUMN", isCorrect: true },
+                        { text: "UPDATE COLUMN", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is a primary key?",
+                    options: [
+                        { text: "A key that is used to encrypt tables", isCorrect: false },
+                        { text: "A field that uniquely identifies a row", isCorrect: true },
+                        { text: "A foreign reference to another table", isCorrect: false },
+                        { text: "A temporary key for sorting", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What does the HAVING clause do?",
+                    options: [
+                        { text: "Filters groups", isCorrect: true },
+                        { text: "Sorts records", isCorrect: false },
+                        { text: "Renames fields", isCorrect: false },
+                        { text: "Creates indexes", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Which SQL statement is used to update data?",
+                    options: [
+                        { text: "MODIFY", isCorrect: false },
+                        { text: "UPDATE", isCorrect: true },
+                        { text: "REPLACE", isCorrect: false },
+                        { text: "SET", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Which symbol is used for a single-character wildcard in SQL?",
+                    options: [
+                        { text: "*", isCorrect: false },
+                        { text: "%", isCorrect: false },
+                        { text: "_", isCorrect: true },
+                        { text: "#", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Which SQL clause is used to combine rows from two or more tables?",
+                    options: [
+                        { text: "COMBINE", isCorrect: false },
+                        { text: "MERGE", isCorrect: false },
+                        { text: "JOIN", isCorrect: true },
+                        { text: "APPEND", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Which JOIN returns all records when there is a match in either table?",
+                    options: [
+                        { text: "INNER JOIN", isCorrect: false },
+                        { text: "LEFT JOIN", isCorrect: false },
+                        { text: "FULL JOIN", isCorrect: true },
+                        { text: "OUTER JOIN", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Which SQL command is used to create a new database?",
+                    options: [
+                        { text: "CREATE DB", isCorrect: false },
+                        { text: "NEW DATABASE", isCorrect: false },
+                        { text: "CREATE DATABASE", isCorrect: true },
+                        { text: "INIT DB", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is a foreign key?",
+                    options: [
+                        { text: "A key to access external APIs", isCorrect: false },
+                        { text: "A key that references a primary key in another table", isCorrect: true },
+                        { text: "A deprecated key type", isCorrect: false },
+                        { text: "A temporary identifier", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What does the IS NULL operator do?",
+                    options: [
+                        { text: "Checks if a value is 0", isCorrect: false },
+                        { text: "Checks if a value is empty", isCorrect: false },
+                        { text: "Checks if a value is undefined", isCorrect: false },
+                        { text: "Checks if a value is null", isCorrect: true }
+                    ]
+                },
+                {
+                    question: "Which function returns the lowest value?",
+                    options: [
+                        { text: "MIN()", isCorrect: true },
+                        { text: "LOW()", isCorrect: false },
+                        { text: "BOTTOM()", isCorrect: false },
+                        { text: "LEAST()", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Which clause is used with aggregate functions?",
+                    options: [
+                        { text: "WHERE", isCorrect: false },
+                        { text: "FILTER", isCorrect: false },
+                        { text: "HAVING", isCorrect: true },
+                        { text: "GROUP", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Which keyword is used to prevent null values?",
+                    options: [
+                        { text: "REQUIRED", isCorrect: false },
+                        { text: "NOT NULL", isCorrect: true },
+                        { text: "NO BLANK", isCorrect: false },
+                        { text: "DISALLOW NULL", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What does the AVG() function return?",
+                    options: [
+                        { text: "Total sum", isCorrect: false },
+                        { text: "Average of values", isCorrect: true },
+                        { text: "Count of rows", isCorrect: false },
+                        { text: "Rounded value", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "Which clause is used to limit the number of records returned?",
+                    options: [
+                        { text: "TOP", isCorrect: false },
+                        { text: "LIMIT", isCorrect: true },
+                        { text: "RANGE", isCorrect: false },
+                        { text: "ROWNUM", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What does the LIKE operator do?",
+                    options: [
+                        { text: "Searches for a pattern", isCorrect: true },
+                        { text: "Matches column types", isCorrect: false },
+                        { text: "Finds exact value", isCorrect: false },
+                        { text: "Checks value type", isCorrect: false }
+                    ]
+                }
+            ];
 
-//             quizBtn.onclick = async () => {
-//                 const chosen = mods
-//                     .filter((_, i) => localStorage.getItem('udemyMod-' + i) === '1')
-//                     .map(m => m.innerText.trim());
+            quizBtn.onclick = () => {
+                const chosen = mods
+                    .filter((_, i) => localStorage.getItem('udemyMod-' + i) === '1')
+                    .map(m => m.innerText.trim());
 
-//                 if (!chosen.length) return alert('Select modules first.');
+                if (!chosen.length) return alert('Select modules first.');
 
-//                 overlay.innerHTML = '<h2>📝 Generating quiz…</h2>';
+                overlay.style.display = 'block';
+                overlay.innerHTML = `
+        <button id="closeQuiz" style="position:absolute;top:15px;right:20px;font-size:20px;
+        background:#f44336;color:white;border:none;border-radius:4px;padding:4px 12px;cursor:pointer;">✖</button>
+        <h2 style="text-align:center;margin:10px 0 20px">📝 Module Quiz</h2>
+        <form id="quizForm" style="font-size:16px;line-height:1.6"></form>
+        <button id="submitQuiz" style="margin-top:25px;display:block;background:#4caf50;color:white;
+        border:none;padding:10px 20px;border-radius:6px;cursor:pointer;margin-left:auto;margin-right:auto;">Show Answers</button>
+        <div id="scoreBox" style="text-align:center;font-size:18px;margin-top:15px;font-weight:bold;"></div>
+    `;
 
-//                 const qPrompt = `
-// You are an advanced technical MCQ generator.
+                document.getElementById('closeQuiz').onclick = () => (overlay.style.display = 'none');
+                const form = overlay.querySelector('#quizForm');
 
-// Generate exactly 5 multiple choice questions (MCQs) based ONLY on these modules:
-// ${chosen.join('\n')}
+                // ✅ Sample 5 random questions from predefined 30
+                const shuffled = [...sqlQuestions].sort(() => Math.random() - 0.5).slice(0, 5);
+                const correctMap = [];
 
-// Each question must follow these strict rules:
-// • 2 easy, 2 medium, 1 hard
-// • 4 options per question: labeled A), B), C), D)
-// • Wrap only the correct answer with <span class="answer">Correct Option</span>
-// • Do not include any explanations or 'Answer:' lines
-// • Use this exact format:
+                shuffled.forEach((q, qi) => {
+                    const qDiv = document.createElement('div');
+                    qDiv.style.marginBottom = '20px';
+                    qDiv.innerHTML = `<b>Q${qi + 1}. ${q.question}</b><br><br>`;
 
-// Q1. What is the question text?
-// A) Option A
-// B) Option B
-// C) Option C
-// D) <span class="answer">Correct Option</span>
+                    // Shuffle options
+                    const options = [...q.options].sort(() => Math.random() - 0.5);
 
-// ... and so on until Q5.
+                    options.forEach((opt, oi) => {
+                        const id = `q${qi}o${oi}`;
+                        const radio = document.createElement('input');
+                        radio.type = 'radio';
+                        radio.name = `q${qi}`;
+                        radio.id = id;
+                        radio.dataset.correct = opt.isCorrect;
+                        const label = document.createElement('label');
+                        label.htmlFor = id;
+                        label.style.cssText =
+                            'display:block;margin:6px 0;padding:6px 10px;border-radius:5px;' +
+                            'cursor:pointer;border:1px solid #ccc;';
+                        label.appendChild(radio);
+                        label.appendChild(document.createTextNode(' ' + opt.text));
+                        qDiv.appendChild(label);
+                        if (opt.isCorrect) correctMap[qi] = label;
+                    });
 
-// Begin now:
-// `;
+                    form.appendChild(qDiv);
+                });
 
-//                 try {
-//                     const txt = await cohereQuery(qPrompt, 650);
-
-//                     overlay.style.display = 'block';
-//                     overlay.innerHTML = `
-//         <button id="closeQuiz" style="position:absolute;top:15px;right:20px;font-size:20px;
-//         background:#f44336;color:white;border:none;border-radius:4px;padding:4px 12px;cursor:pointer;">✖</button>
-//         <h2 style="text-align:center;margin:10px 0 20px">📝 Module Quiz</h2>
-//         <form id="quizForm" style="font-size:16px;line-height:1.6"></form>
-//         <button id="submitQuiz" style="margin-top:25px;display:block;background:#4caf50;color:white;
-//         border:none;padding:10px 20px;border-radius:6px;cursor:pointer;margin-left:auto;margin-right:auto;">Show Answers</button>
-//         <div id="scoreBox" style="text-align:center;font-size:18px;margin-top:15px;font-weight:bold;"></div>
-//     `;
-
-//                     document.getElementById('closeQuiz').onclick = () => (overlay.style.display = 'none');
-//                     const form = overlay.querySelector('#quizForm');
-
-//                     const blocks = txt.split(/\n(?=Q\d+\.)/).filter(line => line.trim().length > 0);
-
-//                     const correctMap = [];
-//                     blocks.forEach((blk, qi) => {
-//                         const lines = blk.trim().split('\n').filter(Boolean);
-//                         const qLine = lines.shift();
-
-//                         const qDiv = document.createElement('div');
-//                         qDiv.style.marginBottom = '20px';
-//                         qDiv.innerHTML = `<b>${qLine.replace(/^Q\d+[.)]\s*/, '')}</b><br><br>`;
-
-//                         const options = lines.slice(0, 4).map((line) => {
-//                             const isCorrect = /<span class=["']answer["']>/.test(line);
-//                             const text = line
-//                                 .replace(/<span class=["']answer["']>/, '')
-//                                 .replace('</span>', '')
-//                                 .replace(/^[A-Da-d][).]\s*/, '')
-//                                 .trim();
-//                             return { text, isCorrect };
-//                         });
-
-//                         // Shuffle options
-//                         for (let i = options.length - 1; i > 0; i--) {
-//                             const j = Math.floor(Math.random() * (i + 1));
-//                             [options[i], options[j]] = [options[j], options[i]];
-//                         }
-
-//                         options.forEach((opt, oi) => {
-//                             const id = `q${qi}o${oi}`;
-//                             const radio = document.createElement('input');
-//                             radio.type = 'radio';
-//                             radio.name = `q${qi}`;
-//                             radio.id = id;
-//                             radio.dataset.correct = opt.isCorrect;
-//                             const label = document.createElement('label');
-//                             label.htmlFor = id;
-//                             label.style.cssText =
-//                                 'display:block;margin:6px 0;padding:6px 10px;border-radius:5px;' +
-//                                 'cursor:pointer;border:1px solid #ccc;';
-//                             label.appendChild(radio);
-//                             label.appendChild(document.createTextNode(' ' + opt.text));
-//                             qDiv.appendChild(label);
-//                             if (opt.isCorrect) correctMap[qi] = label;
-//                         });
-
-//                         form.appendChild(qDiv);
-//                     });
-
-//                     overlay.querySelector('#submitQuiz').onclick = () => {
-//                         let right = 0;
-//                         correctMap.forEach((correctLabel, qi) => {
-//                             const chosen = form.querySelector(`input[name="q${qi}"]:checked`);
-//                             if (chosen) {
-//                                 const chosenLabel = form.querySelector(`label[for="${chosen.id}"]`);
-//                                 if (chosen.dataset.correct === 'true') {
-//                                     chosenLabel.style.background = '#c8e6c9';
-//                                     right++;
-//                                 } else {
-//                                     chosenLabel.style.background = '#ffcdd2';
-//                                     correctLabel.style.background = '#e0f2f1';
-//                                 }
-//                             } else {
-//                                 correctLabel.style.background = '#e0f2f1';
-//                             }
-//                         });
-//                         const pct = Math.round((right / correctMap.length) * 100);
-//                         addTokens(right);
-//                         overlay.querySelector('#scoreBox').textContent =
-//                             `🎯 You scored ${right}/${correctMap.length} (${pct}%)`;
-//                     };
-//                 } catch (err) {
-//                     overlay.innerHTML =
-//                         '<p style="color:red;text-align:center">❌ Failed to generate quiz.</p>';
-//                     console.error(err);
-//                 }
-//             };
+                overlay.querySelector('#submitQuiz').onclick = () => {
+                    let right = 0;
+                    correctMap.forEach((correctLabel, qi) => {
+                        const chosen = form.querySelector(`input[name="q${qi}"]:checked`);
+                        if (chosen) {
+                            const chosenLabel = form.querySelector(`label[for="${chosen.id}"]`);
+                            if (chosen.dataset.correct === 'true') {
+                                chosenLabel.style.background = '#c8e6c9';
+                                right++;
+                            } else {
+                                chosenLabel.style.background = '#ffcdd2';
+                                correctLabel.style.background = '#e0f2f1';
+                            }
+                        } else {
+                            correctLabel.style.background = '#e0f2f1';
+                        }
+                    });
+                    const pct = Math.round((right / correctMap.length) * 100);
+                    addTokens(right);
+                    overlay.querySelector('#scoreBox').textContent =
+                        `🎯 You scored ${right}/${correctMap.length} (${pct}%)`;
+                };
+            };
 
             /* --- Project Suggestions --- */
             const ideasDiv = document.createElement('div');
