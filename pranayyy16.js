@@ -528,9 +528,11 @@ In-depth Details
         <div id="modulesBtnRow"></div>
     </div>
 `;
-            // checklist for each module
+            // checklist for each module (only module names, no "Section 1" etc.)
             const modulesList = modulesBox.querySelector('#modulesList');
             mods.forEach((m, i) => {
+                // Remove "Section X:" or "Section X -" or similar prefixes
+                let name = m.innerText.trim().replace(/^Section\s*\d+\s*[:-]?\s*/i, '');
                 const key = 'udemyMod-' + i;
                 const wrap = document.createElement('label');
                 wrap.style.cssText = 'display:block;margin:4px 0;cursor:pointer;';
@@ -538,7 +540,7 @@ In-depth Details
                 chk.type = 'checkbox';
                 chk.checked = localStorage.getItem(key) === '1';
                 chk.onchange = () => localStorage.setItem(key, chk.checked ? '1' : '0');
-                wrap.append(chk, ' ', m.innerText.trim());
+                wrap.append(chk, ' ', name);
                 modulesList.appendChild(wrap);
             });
 
