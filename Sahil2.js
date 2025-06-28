@@ -875,4 +875,4 @@ document.head.appendChild(style);
 updateXpUI();
 setTimeout(updateXpUI, 0);
 
-}) ();
+});
