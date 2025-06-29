@@ -1663,53 +1663,6 @@ Only output the JSON — no extra text.
           matchingGameOverlay.innerHTML = ""; // Clean up
         };
     };
-
-    /*************************************************
-     *  🔄 REFRESH BUTTON (in headerBar)
-     *************************************************/
-    const refreshBtn = document.createElement('button');
-    refreshBtn.textContent = '🔄 Refresh';
-    refreshBtn.style.cssText = 'padding:6px 14px;background:#f44336;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;';
-    headerBar.appendChild(refreshBtn);
-
-    refreshBtn.onclick = () => {
-        location.reload();
-    };
-
-    /*************************************************
-     *  🗑️ CLEAR LOCAL STORAGE BUTTON (for testing)
-     *************************************************/
-    const clearBtn = document.createElement('button');
-    clearBtn.textContent = '🗑️ Clear Data';
-    clearBtn.style.cssText = 'padding:6px 14px;background:#607d8b;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;';
-    headerBar.appendChild(clearBtn);
-
-    clearBtn.onclick = () => {
-        if (confirm("Are you sure you want to clear all local data?")) {
-            localStorage.clear();
-            alert("✅ All data cleared. Please refresh the page.");
-        }
-    };
-
-    /*************************************************
-     *  🎁 TOKEN REWARD BUTTON (for testing)
-     *************************************************/
-    const rewardBtn = document.createElement('button');
-    rewardBtn.textContent = '🎁 Add Tokens';
-    rewardBtn.style.cssText = 'padding:6px 14px;background:#8bc34a;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;';
-    headerBar.appendChild(rewardBtn);
-
-    rewardBtn.onclick = () => {
-        const amount = prompt("Enter token amount:", "10");
-        const delta = Number(amount);
-        if (!isNaN(delta)) {
-            addTokens(delta);
-            alert(`✅ Added ${delta} tokens. New balance: ${tokenPoints + delta}`);
-        } else {
-            alert("❌ Invalid amount.");
-        }
-    };
-
     /*************************************************
      *  INITIAL GREETING (after a delay)
      *************************************************/
