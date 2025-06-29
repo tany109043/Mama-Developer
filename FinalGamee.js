@@ -1503,7 +1503,7 @@ Only output the JSON — no extra text.
 
 (function () {
   /* -------------------------------- CONFIG -------------------------------- */
-  const COHERE_API_KEY = "YOUR_COHERE_API_KEY_HERE"; // <‑‑‑ add your key
+  const COHERE_API_KEY = "XhLvmWU0xamB9rrSxqYiV5dleRnCZLdKdRgU0sgI"; // <‑‑‑ add your key
   const MAX_PAIRS = 5;               // how many term/definition pairs to request
   const TIME_LIMIT = 30;             // seconds for the round
   const TOKEN_KEY = "matchingGameTokens"; // localStorage key
