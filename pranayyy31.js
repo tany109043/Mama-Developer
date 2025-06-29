@@ -1,72 +1,134 @@
 // ====================================================
 // 🔌 Sentiment-Analysis Integration  (NEW block)
 // ====================================================
-// 🔁 Sentiment Monitor inside Bookmarklet UI
 (async () => {
     const API = "http://localhost:8000";
-    const TRIGGER_STATES = ["bored", "sleepy", "drowsy", "tired"];
-    const INTERVAL = 10000; // every 10 seconds
 
-    // Add emotion display to panel header
-    const moodDisplay = document.createElement('span');
-    moodDisplay.id = 'moodDisplay';
-    moodDisplay.style.cssText = 'margin-left:auto;font-weight:bold;color:#555;';
+    const emotionMessages = {
+        tired: "😴 Wake up, champ! Your brain needs you!",
+        sleep: "🚨 You're dozing off — sit up straight!",
+        "You Look tensed try attempting quiz": "💥 Feeling tense? Try a quick quiz to recalibrate!",
+        "You Look bored  generate a meme,relax a bit": "😐 Bored? Create a meme and spark your creativity!"
+    };
 
-    function waitForPanelHeader() {
-        const panel = document.querySelector('#udemyAnalysisPanel');
-        if (!panel) return setTimeout(waitForPanelHeader, 300);
+    const sleepSound = new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg");
 
-        const header = panel.querySelector('div');
-        if (!header) return setTimeout(waitForPanelHeader, 300);
+    const WINDOW_SEC = 10;
+    const MIN_OCCURRENCES = 3;
+    const STABLE_SEC = 3;
+    const GLOBAL_COOLDOWN = 30;
 
-        header.appendChild(moodDisplay);
-    }
+    const notify = (() => {
+        const box = document.createElement("div");
+        box.id = "emotionAlertBox";
+        box.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff3cd;
+            color: #856404;
+            padding: 16px 20px;
+            border: 2px solid #ffeeba;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            max-width: 400px;
+            z-index: 9999;
+            box-shadow: 0 8px 16px rgba(0,0,0,.2);
+            display: none;
+            transition: opacity .4s ease;
+            opacity: 0;
+            text-align: center;
+        `;
+        document.body.appendChild(box);
+        return (msg, label) => {
+            box.textContent = msg;
+            box.style.display = "block";
+            box.style.opacity = "1";
+            clearTimeout(box.hideTimeout);
+            box.hideTimeout = setTimeout(() => {
+                box.style.opacity = "0";
+                setTimeout(() => (box.style.display = "none"), 400);
+            }, 5000);
 
-    waitForPanelHeader();
-
-
-    // Optional sound for sleepy mood
-    const beep = new Audio("data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQgAAA==");
-
-    try {
-        await fetch(API + "/start", { method: "POST" });
-        let running = true;
-
-        async function poll() {
-            if (!running) return;
-            try {
-                const res = await fetch(API + "/latest");
-                const data = await res.json();
-                const mood = data.emotion || data.sentiment || "Unknown";
-
-                // show in bookmarklet panel
-                moodDisplay.innerHTML = `🤖 Mood: <span style="color:#2196F3">${mood}</span>`;
-
-                // if sleepy or bored → show warning + beep
-                if (TRIGGER_STATES.includes(mood.toLowerCase())) {
-                    moodDisplay.innerHTML += `<br><span style="color:#f44336;font-weight:bold;">⚠️ You look ${mood}! Relax or take a meme break.</span>`;
-                    beep.play().catch(() => { });
-                }
-            } catch (_) {
-                moodDisplay.textContent = "⏳ Analyzing mood...";
+            if (label === "sleep") {
+                sleepSound.currentTime = 0;
+                sleepSound.play().catch(e => console.warn("🔇 Cannot auto-play sound:", e));
             }
-            setTimeout(poll, INTERVAL);
+        };
+    })();
+
+    const now = () => Math.floor(Date.now() / 1000);
+    const hist = [];
+    let lastPopupAt = 0;
+    let stableStart = 0;
+    let prevDominant = "engagement/focus";
+
+    const record = (label) => {
+        hist.push({ label, t: now() });
+        while (hist.length && hist[0].t < now() - WINDOW_SEC) hist.shift();
+    };
+
+    const getDominant = () => {
+        const counts = {};
+        for (const { label } of hist) counts[label] = (counts[label] || 0) + 1;
+        let dom = "engagement/focus", max = 0;
+        for (const [l, c] of Object.entries(counts))
+            if (c > max) { dom = l; max = c; }
+        return { dom, count: max };
+    };
+
+    try { await fetch(API + "/start", { method: "POST" }); }
+    catch (e) { console.error("❌ Backend unreachable:", e); return; }
+
+    let running = true;
+
+    async function poll() {
+        if (!running) return;
+
+        try {
+            const res = await fetch(API + "/latest");
+            const data = await res.json();
+            if (data.label) record(data.label);
+
+            const { dom, count } = getDominant();
+
+            if (dom !== prevDominant) {
+                prevDominant = dom;
+                stableStart = now();
+            }
+
+            const stableFor = now() - stableStart;
+
+            if (
+                dom !== "engagement/focus" &&
+                count >= MIN_OCCURRENCES &&
+                stableFor >= STABLE_SEC &&
+                now() - lastPopupAt >= GLOBAL_COOLDOWN
+            ) {
+                if (emotionMessages[dom]) notify(emotionMessages[dom], dom);
+                lastPopupAt = now();
+            }
+        } catch {
+            console.warn("Waiting for sentiment data…");
         }
 
-        poll();
-
-        window.addEventListener("keydown", async (e) => {
-            if (e.key === "Escape") {
-                running = false;
-                await fetch(API + "/stop", { method: "POST" });
-                moodDisplay.textContent = "🛑 Emotion tracking stopped.";
-            }
-        });
-    } catch (err) {
-        console.error("⚠️ Sentiment-analysis API unreachable:", err);
+        setTimeout(poll, 1000);
     }
+    poll();
+
+    window.addEventListener("keydown", async (e) => {
+        if (e.key === "Escape") {
+            running = false;
+            await fetch(API + "/stop", { method: "POST" });
+            document.querySelector("#emotionAlertBox")?.remove();
+            console.log("Emotion monitor stopped.");
+        }
+    });
 })();
 
+//Updated 
 
 // ==================================================
 // 📘 Udemy AI Bookmarklet Tool — ARRANGED VERSION
@@ -115,13 +177,6 @@
         'z-index:9999', 'display:flex', 'flex-direction:column', 'overflow:hidden'
     ].join(';');
 
-    // ▸ close (absolute so it stays top‑right)
-    const closeBtn = document.createElement('button');
-    closeBtn.textContent = '✖';
-    closeBtn.style.cssText = 'position:absolute;top:6px;right:8px;background:none;border:none;font-size:18px;cursor:pointer;';
-    closeBtn.onclick = () => (panel.style.display = 'none');
-    panel.appendChild(closeBtn);
-
     // ▸ HEADER BAR (Daily Question lives here)
     const headerBar = document.createElement('div');
     headerBar.style.cssText = 'padding:10px 14px 6px 14px;border-bottom:1px solid #eee;flex:0 0 auto;display:flex;align-items:center;gap:10px;';
@@ -168,8 +223,31 @@
     bodyWrap.appendChild(dividerThree);
 
     const chatResult = document.createElement('div');
-    chatResult.id = 'chatResult';
     bodyWrap.appendChild(chatResult);
+
+    // Style the "Ask Anything" block like the course analysis block
+    chatResult.style.cssText = `
+        margin: 0 auto;
+        max-width: 95%;
+        background: linear-gradient(135deg, #e3f0ff 0%, #f9f6ff 100%);
+        padding: 22px 32px 22px 32px;
+        border-radius: 12px;
+        border: 1px solid #b6c7e6;
+        box-sizing: border-box;
+        text-align: justify;
+        font-family: inherit;
+        font-size: 15px;
+        line-height: 1.7;
+        color: #222;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        box-shadow: 0 6px 24px rgba(80,120,200,0.10);
+        min-height: 180px;
+    `;
+
+    // Optional: Add a heading for clarity
+    chatResult.innerHTML = `<div style="font-weight:bold;text-align:center;margin-bottom:18px;">Ask Me Anything</div>`;
 
     // ▸ BOTTOM BAR (Ask + Meme) fixed inside panel
     const bottomBar = document.createElement('div');
@@ -443,7 +521,7 @@ In-depth Details
 `;
 
         const analysis = await cohereQuery(analysisPrompt, 650);
-        // Upgraded UI: more attractive background, but keep alignment/margin/text as before
+        // Custom styled box with equal margin and no markdown symbols
         analysisBox.innerHTML = `
     <div style="
         margin: 0 auto;
@@ -482,7 +560,7 @@ In-depth Details
         </div>
     </div>
 `;
-        /***** 2️⃣ Modules List *****/
+         /***** 2️⃣ Modules List *****/
         const mods = [...document.querySelectorAll('div[data-purpose="curriculum-section-container"] h3')];
         if (!mods.length) {
             modulesBox.innerHTML = `
@@ -601,6 +679,7 @@ In-depth Details
                 quizBtn.style.background = 'linear-gradient(90deg,#f7971e 0%,#ffd200 100%)';
             };
             btnRow.appendChild(quizBtn);
+
 
             /* --- QUIZ ME ------------------------------------ */
             let overlay = document.getElementById('udemyoverlay');
@@ -1283,12 +1362,16 @@ Format strictly:
         const q = askInput.value.trim();
         if (!q) return;
         askBtn.disabled = true;
-        chatResult.insertAdjacentHTML('beforeend', '<br><b>🔸 You:</b> ' + q.replace(/\n/g, '<br>'));
-        chatResult.insertAdjacentHTML('beforeend', '<br><i>⏳ …thinking</i>');
+        chatResult.innerHTML += `<div style="width:100%;max-width:700px;margin:0 auto;text-align:justify;word-break:break-word;">
+            <b>🔸 You:</b> ${q.replace(/\n/g, '<br>')}
+            <br><i>⏳ …thinking</i>
+        </div>`;
         bodyWrap.scrollTop = bodyWrap.scrollHeight;
         try {
             const ans = await cohereQuery(q);
-            chatResult.insertAdjacentHTML('beforeend', '<br><b>🤖 GPT:</b> ' + ans.replace(/\n/g, '<br>'));
+            chatResult.innerHTML += `<div style="width:100%;max-width:700px;margin:0 auto;text-align:justify;word-break:break-word;">
+                <b>🤖 GPT:</b> ${ans.replace(/\n/g, '<br>')}
+            </div>`;
         } finally {
             askBtn.disabled = false;
             askInput.value = '';
@@ -1413,36 +1496,36 @@ Only output the JSON — no extra text.
     };
 
 
-    /*************************************************
-     *  🗓️ DAILY QUESTION HANDLER (logic reused)
-     *************************************************/
-    dqBtn.onclick = async () => {
-        const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
-        const qKey = 'dailyQ-data';
-        const dKey = 'dailyQ-date';
-        const aKey = 'dailyQ-done';
+/*************************************************
+ *  🗓️ DAILY QUESTION HANDLER (logic reused)
+ *************************************************/
+dqBtn.onclick = async () => {
+    const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+    const qKey = 'dailyQ-data';
+    const dKey = 'dailyQ-date';
+    const aKey = 'dailyQ-done';
 
-        // ✅ Disable btn if already done
-        if (localStorage.getItem(aKey) === today) {
-            dqBtn.disabled = true;
-            dqBtn.style.background = '#ccc';
-            dqBtn.textContent = '✅ Attempted';
-            return;
-        }
+    // ✅ Disable btn if already done
+    if (localStorage.getItem(aKey) === today) {
+        dqBtn.disabled = true;
+        dqBtn.style.background = '#ccc';
+        dqBtn.textContent = '✅ Attempted';
+        return;
+    }
 
-        // helper to render the stored or freshly fetched question
-        const renderQuestion = (qBlock) => {
-            // build overlay (1-per-session)
-            let dqOver = document.getElementById('dailyQOverlay');
-            if (!dqOver) {
-                dqOver = document.createElement('div');
-                dqOver.id = 'dailyQOverlay';
-                dqOver.style.cssText =
-                    'display:flex;flex-direction:column;align-items:center;position:fixed;top:10%;left:50%;' +
-                    'transform:translateX(-50%);width:500px;max-width:90%;padding:22px;background:#fff;' +
-                    'border:5px solid #3f51b5;border-radius:14px;z-index:10000;box-shadow:0 10px 25px rgba(0,0,0,.35);' +
-                    'font-family:sans-serif;';
-                dqOver.innerHTML = `
+    // helper to render the stored or freshly fetched question
+    const renderQuestion = (qBlock) => {
+        // build overlay (1-per-session)
+        let dqOver = document.getElementById('dailyQOverlay');
+        if (!dqOver) {
+            dqOver = document.createElement('div');
+            dqOver.id = 'dailyQOverlay';
+            dqOver.style.cssText =
+                'display:flex;flex-direction:column;align-items:center;position:fixed;top:10%;left:50%;' +
+                'transform:translateX(-50%);width:500px;max-width:90%;padding:22px;background:#fff;' +
+                'border:5px solid #3f51b5;border-radius:14px;z-index:10000;box-shadow:0 10px 25px rgba(0,0,0,.35);' +
+                'font-family:sans-serif;';
+            dqOver.innerHTML = `
                 <button style="position:absolute;top:8px;right:12px;font-size:16px;border:none;background:#f44336;
                         color:white;padding:4px 10px;border-radius:4px;cursor:pointer;"
                         onclick="this.parentElement.remove()">✖</button>
@@ -1453,81 +1536,81 @@ Only output the JSON — no extra text.
                         border:none;border-radius:5px;cursor:pointer;">Submit</button>
                 <div id="dqResult" style="margin-top:14px;font-weight:bold;text-align:center;"></div>
             `;
-                document.body.appendChild(dqOver);
-            }
-
-            // fill form
-            const form = dqOver.querySelector('#dqForm');
-            form.innerHTML = '';
-            const { question, options } = qBlock;
-            const correctIdx = options.findIndex(o => o.isCorrect);
-
-            const qEl = document.createElement('div');
-            qEl.style.fontWeight = 'bold';
-            qEl.textContent = question;
-            form.appendChild(qEl);
-
-            options.forEach((opt, i) => {
-                const id = `dqo${i}`;
-                const wrap = document.createElement('label');
-                wrap.style.cssText =
-                    'display:block;margin:6px 0;padding:6px 9px;border-radius:5px;border:1px solid #ccc;cursor:pointer;';
-                wrap.innerHTML = `<input type="radio" name="dq" id="${id}" value="${i}" style="margin-right:6px;"> ${opt.text}`;
-                form.appendChild(wrap);
-            });
-
-            let timeLeft = 120;
-            const timerBox = dqOver.querySelector('#dqTimer');
-            timerBox.textContent = `⏳ Time left: 2:00`;
-            const tick = setInterval(() => {
-                --timeLeft;
-                const min = Math.floor(timeLeft / 60).toString();
-                const sec = (timeLeft % 60).toString().padStart(2, '0');
-                timerBox.textContent = `⏳ Time left: ${min}:${sec}`;
-                if (timeLeft <= 0) {
-                    clearInterval(tick);
-                    dqOver.querySelector('#dqSubmit').click();
-                }
-            }, 1000);
-
-            dqOver.querySelector('#dqSubmit').onclick = () => {
-                clearInterval(tick);
-                const chosen = form.querySelector('input[name="dq"]:checked');
-                const resBox = dqOver.querySelector('#dqResult');
-                if (!chosen) {
-                    resBox.textContent = '❗ No option selected!';
-                    return;
-                }
-                const idx = Number(chosen.value);
-                if (idx === correctIdx) {
-                    resBox.textContent = '✅ Correct!';
-                    resBox.style.color = '#2e7d32';
-                    addTokens(10); // ✅ reward tokens
-                } else {
-                    resBox.textContent = `❌ Wrong. Correct answer: ${options[correctIdx].text}`;
-                    resBox.style.color = '#c62828';
-                }
-                dqOver.querySelectorAll('input').forEach(inp => inp.disabled = true);
-                dqOver.querySelector('#dqSubmit').disabled = true;
-
-                // ✅ Mark as attempted
-                localStorage.setItem(aKey, today);
-                dqBtn.disabled = true;
-                dqBtn.style.background = '#ccc';
-                dqBtn.textContent = '✅ Attempted';
-            };
-        };
-
-        if (localStorage.getItem(dKey) === today) {
-            const stored = JSON.parse(localStorage.getItem(qKey) || '{}');
-            return renderQuestion(stored);
+            document.body.appendChild(dqOver);
         }
 
-        try {
-            dqBtn.textContent = '⏳ Creating…';
-            dqBtn.disabled = true;
+        // fill form
+        const form = dqOver.querySelector('#dqForm');
+        form.innerHTML = '';
+        const { question, options } = qBlock;
+        const correctIdx = options.findIndex(o => o.isCorrect);
 
-            const prompt = `
+        const qEl = document.createElement('div');
+        qEl.style.fontWeight = 'bold';
+        qEl.textContent = question;
+        form.appendChild(qEl);
+
+        options.forEach((opt, i) => {
+            const id = `dqo${i}`;
+            const wrap = document.createElement('label');
+            wrap.style.cssText =
+                'display:block;margin:6px 0;padding:6px 9px;border-radius:5px;border:1px solid #ccc;cursor:pointer;';
+            wrap.innerHTML = `<input type="radio" name="dq" id="${id}" value="${i}" style="margin-right:6px;"> ${opt.text}`;
+            form.appendChild(wrap);
+        });
+
+        let timeLeft = 120;
+        const timerBox = dqOver.querySelector('#dqTimer');
+        timerBox.textContent = `⏳ Time left: 2:00`;
+        const tick = setInterval(() => {
+            --timeLeft;
+            const min = Math.floor(timeLeft / 60).toString();
+            const sec = (timeLeft % 60).toString().padStart(2, '0');
+            timerBox.textContent = `⏳ Time left: ${min}:${sec}`;
+            if (timeLeft <= 0) {
+                clearInterval(tick);
+                dqOver.querySelector('#dqSubmit').click();
+            }
+        }, 1000);
+
+        dqOver.querySelector('#dqSubmit').onclick = () => {
+            clearInterval(tick);
+            const chosen = form.querySelector('input[name="dq"]:checked');
+            const resBox = dqOver.querySelector('#dqResult');
+            if (!chosen) {
+                resBox.textContent = '❗ No option selected!';
+                return;
+            }
+            const idx = Number(chosen.value);
+            if (idx === correctIdx) {
+                resBox.textContent = '✅ Correct!';
+                resBox.style.color = '#2e7d32';
+                addTokens(10); // ✅ reward tokens
+            } else {
+                resBox.textContent = `❌ Wrong. Correct answer: ${options[correctIdx].text}`;
+                resBox.style.color = '#c62828';
+            }
+            dqOver.querySelectorAll('input').forEach(inp => inp.disabled = true);
+            dqOver.querySelector('#dqSubmit').disabled = true;
+
+            // ✅ Mark as attempted
+            localStorage.setItem(aKey, today);
+            dqBtn.disabled = true;
+            dqBtn.style.background = '#ccc';
+            dqBtn.textContent = '✅ Attempted';
+        };
+    };
+
+    if (localStorage.getItem(dKey) === today) {
+        const stored = JSON.parse(localStorage.getItem(qKey) || '{}');
+        return renderQuestion(stored);
+    }
+
+    try {
+        dqBtn.textContent = '⏳ Creating…';
+        dqBtn.disabled = true;
+
+        const prompt = `
 Generate EXACTLY one aptitude multiple-choice question in the domain of logical reasoning or quantitative aptitude.
 
 • Return in this format (no extra commentary):
@@ -1541,40 +1624,40 @@ Answer: <capital letter of correct option>
 Use real aptitude style, medium difficulty.
         `.trim();
 
-            const raw = await cohereQuery(prompt, 180);
-            dqBtn.textContent = '🗓️ Daily Question';
-            dqBtn.disabled = false;
+        const raw = await cohereQuery(prompt, 180);
+        dqBtn.textContent = '🗓️ Daily Question';
+        dqBtn.disabled = false;
 
-            const qMatch = raw.match(/^Q\)?\s*(.*)$/im);
-            const oMatch = raw.match(/^[A-D]\).*/gim);
-            const aMatch = raw.match(/Answer:\s*([A-D])/i);
-            if (!qMatch || !oMatch || oMatch.length !== 4 || !aMatch) {
-                return alert('⚠️ Could not parse question from Cohere.');
-            }
-
-            const qBlock = {
-                question: qMatch[1].trim(),
-                options: oMatch.map((l, i) => ({
-                    text: l.replace(/^[A-D]\)\s*/, '').trim(),
-                    isCorrect: 'ABCD'[i] === aMatch[1].toUpperCase()
-                }))
-            };
-
-            localStorage.setItem(qKey, JSON.stringify(qBlock));
-            localStorage.setItem(dKey, today);
-
-            renderQuestion(qBlock);
-        } catch (err) {
-            dqBtn.textContent = '🗓️ Daily Question';
-            dqBtn.disabled = false;
-            console.error(err);
-            alert('❌ Error generating daily question – see console.');
+        const qMatch = raw.match(/^Q\)?\s*(.*)$/im);
+        const oMatch = raw.match(/^[A-D]\).*/gim);
+        const aMatch = raw.match(/Answer:\s*([A-D])/i);
+        if (!qMatch || !oMatch || oMatch.length !== 4 || !aMatch) {
+            return alert('⚠️ Could not parse question from Cohere.');
         }
-    };
 
-    /*************************************************
-     *  Attach primary button to page
-     *************************************************/
-    document.body.appendChild(mainBtn);
+        const qBlock = {
+            question: qMatch[1].trim(),
+            options: oMatch.map((l, i) => ({
+                text: l.replace(/^[A-D]\)\s*/, '').trim(),
+                isCorrect: 'ABCD'[i] === aMatch[1].toUpperCase()
+            }))
+        };
 
-})();
+        localStorage.setItem(qKey, JSON.stringify(qBlock));
+        localStorage.setItem(dKey, today);
+
+        renderQuestion(qBlock);
+    } catch (err) {
+        dqBtn.textContent = '🗓️ Daily Question';
+        dqBtn.disabled = false;
+        console.error(err);
+        alert('❌ Error generating daily question – see console.');
+    }
+};
+
+/*************************************************
+ *  Attach primary button to page
+ *************************************************/
+document.body.appendChild(mainBtn);
+
+}) ();
