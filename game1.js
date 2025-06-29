@@ -1496,163 +1496,240 @@ Only output the JSON — no extra text.
 
 
     /*************************************************
-     *  🗓️ DAILY QUESTION HANDLER (logic reused)
+     *  🎮 MATCHING GAME BUTTON IN BOOKMARKLET PANEL
      *************************************************/
-    dqBtn.onclick = async () => {
-        const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
-        const qKey = 'dailyQ-data';
-        const dKey = 'dailyQ-date';
-        const aKey = 'dailyQ-done';
+    // 1. Create the button and add to headerBar or wherever you want
+    const matchingGameBtn = document.createElement('button');
+    matchingGameBtn.textContent = '🎮 Matching Game';
+    matchingGameBtn.style.cssText = 'padding:6px 14px;background:#009688;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;';
+    headerBar.appendChild(matchingGameBtn);
 
-        // ✅ Disable btn if already done
-        if (localStorage.getItem(aKey) === today) {
-            dqBtn.disabled = true;
-            dqBtn.style.background = '#ccc';
-            dqBtn.textContent = '✅ Attempted';
-            return;
+    // 2. Add a container for the game popup (hidden by default)
+    let matchingGameOverlay = document.getElementById('matchingGameOverlay');
+    if (!matchingGameOverlay) {
+        matchingGameOverlay = document.createElement('div');
+        matchingGameOverlay.id = 'matchingGameOverlay';
+        matchingGameOverlay.style.cssText = `
+        display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;
+        background:rgba(0,0,0,0.25);z-index:10001;align-items:center;justify-content:center;
+    `;
+        document.body.appendChild(matchingGameOverlay);
+    }
+
+    // 3. Insert the game HTML into the overlay when button is clicked
+    matchingGameBtn.onclick = () => {
+        // Only inject once or reset if already present
+        matchingGameOverlay.innerHTML = `
+      <div class="game-container" style="position:relative;">
+        <div class="close-btn" title="Close" style="position:absolute;top:10px;right:18px;font-size:22px;font-weight:bold;color:#888;background:#fff;border:1.5px solid #b6c7e6;border-radius:50%;width:32px;height:32px;line-height:28px;text-align:center;cursor:pointer;box-shadow:0 2px 8px rgba(80,120,200,0.10);transition:background 0.2s, color 0.2s;z-index:10;">&times;</div>
+        <h2 style="font-size:18px;color:#333;margin-bottom:12px;text-align:center;">🔁 Match MongoDB & Python Terms</h2>
+        <div id="scoreBoard">⏱ <span id="timer">30</span>s | ✅ Score: <span id="score">0</span>/5</div>
+        <div id="game" style="display:flex;flex-direction:row;gap:12px;max-width:320px;flex-wrap:wrap;justify-content:center;margin-bottom:10px;">
+          <div id="terms"></div>
+          <div id="boxes"></div>
+        </div>
+        <div style="font-size:12px;color:#666;margin-top:8px;text-align:center;">
+          Drag the terms on the left to their correct definitions on the right.<br>
+          Wrong attempts will disable the option. Good luck!
+        </div>
+        <audio id="rightSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_58e1ab1a43.mp3"></audio>
+        <audio id="wrongSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_57c7ccdfba.mp3"></audio>
+      </div>
+      <style>
+        .game-container { background: linear-gradient(135deg, #e3f0ff 0%, #f9f6ff 100%); border: 1.5px solid #b6c7e6; border-radius: 16px; box-shadow: 0 6px 24px rgba(80,120,200,0.10); padding: 24px 18px 18px 18px; margin-top: 0; max-width: 370px; width: 100%; min-width: 270px; display: flex; flex-direction: column; align-items: center; position: relative;}
+        .term, .box { width: 140px; min-height: 32px; margin: 4px; padding: 6px 8px; font-size: 13px; border-radius: 6px; border: 1.5px dashed #bbb; background-color: #fff; box-sizing: border-box; cursor: move; transition: background 0.3s; text-align: center; user-select: none;}
+        .term { background: #e3f2fd; font-weight: 500;}
+        .box.correct { background: #d0f0c0; border-color: #4caf50;}
+        .box.wrong { background: #fddede; border-color: #f44336;}
+        #scoreBoard { margin: 10px 0 15px; font-size: 14px; color: #333; background: #fff; border-radius: 8px; padding: 6px 12px; box-shadow: 0 2px 8px rgba(80,120,200,0.06); display: inline-block;}
+        #timer { font-weight: bold; color: #e53935;}
+        .term.disabled { background: #eee !important; color: #aaa !important; border-color: #ddd !important; text-decoration: line-through; cursor: not-allowed !important;}
+        .close-btn:hover { background: #f44336; color: #fff; border-color: #f44336;}
+        @media (max-width: 500px) { .game-container { max-width: 98vw; } .term, .box { width: 90vw; min-width: 120px; } #game { max-width: 98vw; } }
+      </style>
+    `;
+        matchingGameOverlay.style.display = "flex";
+
+        // Game logic (same as your matching-game.html)
+        const pairs = [
+          { term: "ObjectId", definition: "MongoDB unique document ID" },
+          { term: "insert_one", definition: "Insert one document" },
+          { term: "Pandas", definition: "Python data analysis library" },
+          { term: "update_one", definition: "Update one MongoDB document" },
+          { term: "Dictionary", definition: "Python key-value data type" }
+        ];
+
+        let score = 0;
+        let finalScore = 0;
+        let timeLeft = 30;
+        let matched = 0;
+
+        const scoreSpan = matchingGameOverlay.querySelector("#score");
+        const timerSpan = matchingGameOverlay.querySelector("#timer");
+        const termsDiv = matchingGameOverlay.querySelector("#terms");
+        const boxesDiv = matchingGameOverlay.querySelector("#boxes");
+
+        const rightSound = matchingGameOverlay.querySelector("#rightSound");
+        const wrongSound = matchingGameOverlay.querySelector("#wrongSound");
+
+        const shuffled = [...pairs].sort(() => Math.random() - 0.5);
+
+        // Map term to its element for quick disabling
+        const termElements = {};
+
+        shuffled.forEach(({ term }) => {
+          const div = document.createElement("div");
+          div.className = "term";
+          div.draggable = true;
+          div.textContent = term;
+          div.id = "term-" + term.replace(/\s/g, "-");
+          div.ondragstart = e => {
+            if (div.classList.contains("disabled")) {
+              e.preventDefault();
+            } else {
+              e.dataTransfer.setData("text", term);
+            }
+          };
+          termsDiv.appendChild(div);
+          termElements[term] = div;
+        });
+
+        shuffled
+          .sort(() => Math.random() - 0.5)
+          .forEach(({ term, definition }) => {
+            const box = document.createElement("div");
+            box.className = "box";
+            box.textContent = definition;
+            box.ondragover = e => e.preventDefault();
+            box.ondrop = e => {
+              e.preventDefault();
+              const dragged = e.dataTransfer.getData("text");
+              if (dragged === term) {
+                score++;
+                matched++;
+                scoreSpan.textContent = score;
+                box.classList.add("correct");
+                box.textContent = dragged + " ✅";
+                const draggedEl = matchingGameOverlay.querySelector("#term-" + dragged.replace(/\s/g, "-"));
+                if (draggedEl) draggedEl.remove();
+                rightSound.play();
+                checkGameEnd();
+              } else {
+                box.classList.add("wrong");
+                // Disable the wrong option
+                const wrongEl = termElements[dragged];
+                if (wrongEl) {
+                  wrongEl.classList.add("disabled");
+                  wrongEl.draggable = false;
+                  wrongEl.style.opacity = "0.5";
+                  wrongEl.style.cursor = "not-allowed";
+                }
+                setTimeout(() => box.classList.remove("wrong"), 600);
+                wrongSound.play();
+                checkGameEnd();
+              }
+            };
+            boxesDiv.appendChild(box);
+          });
+
+        const timer = setInterval(() => {
+          timeLeft--;
+          timerSpan.textContent = timeLeft;
+          if (timeLeft <= 0 || matched === pairs.length) {
+            clearInterval(timer);
+            finalScore = score;
+            alert(`⏳ Time's up! You matched ${finalScore}/${pairs.length} correctly.`);
+            console.log("✅ Final Score:", finalScore);
+          }
+        }, 1000);
+
+        // Helper to check if all options are gone or disabled
+        function checkGameEnd() {
+          // Check if all .term elements are removed or have .disabled
+          const remaining = Array.from(matchingGameOverlay.querySelectorAll('.term')).filter(el => !el.classList.contains('disabled'));
+          if (matched === pairs.length || remaining.length === 0) {
+            clearInterval(timer);
+            finalScore = score;
+            setTimeout(() => {
+              alert(`🎉 Game Over! You matched ${finalScore}/${pairs.length} correctly.`);
+              console.log("✅ Final Score:", finalScore);
+            }, 100);
+          }
         }
 
-        // helper to render the stored or freshly fetched question
-        const renderQuestion = (qBlock) => {
-            // build overlay (1-per-session)
-            let dqOver = document.getElementById('dailyQOverlay');
-            if (!dqOver) {
-                dqOver = document.createElement('div');
-                dqOver.id = 'dailyQOverlay';
-                dqOver.style.cssText =
-                    'display:flex;flex-direction:column;align-items:center;position:fixed;top:10%;left:50%;' +
-                    'transform:translateX(-50%);width:500px;max-width:90%;padding:22px;background:#fff;' +
-                    'border:5px solid #3f51b5;border-radius:14px;z-index:10000;box-shadow:0 10px 25px rgba(0,0,0,.35);' +
-                    'font-family:sans-serif;';
-                dqOver.innerHTML = `
-                <button style="position:absolute;top:8px;right:12px;font-size:16px;border:none;background:#f44336;
-                        color:white;padding:4px 10px;border-radius:4px;cursor:pointer;"
-                        onclick="this.parentElement.remove()">✖</button>
-                <h3 style="margin-bottom:12px">🗓️ Daily Aptitude Question</h3>
-                <div id="dqTimer" style="font-size:15px;font-weight:bold;margin-bottom:10px;"></div>
-                <form id="dqForm" style="width:100%;font-size:15px;line-height:1.6;"></form>
-                <button id="dqSubmit" style="margin-top:15px;padding:8px 16px;background:#4caf50;color:white;
-                        border:none;border-radius:5px;cursor:pointer;">Submit</button>
-                <div id="dqResult" style="margin-top:14px;font-weight:bold;text-align:center;"></div>
-            `;
-                document.body.appendChild(dqOver);
-            }
-
-            // fill form
-            const form = dqOver.querySelector('#dqForm');
-            form.innerHTML = '';
-            const { question, options } = qBlock;
-            const correctIdx = options.findIndex(o => o.isCorrect);
-
-            const qEl = document.createElement('div');
-            qEl.style.fontWeight = 'bold';
-            qEl.textContent = question;
-            form.appendChild(qEl);
-
-            options.forEach((opt, i) => {
-                const id = `dqo${i}`;
-                const wrap = document.createElement('label');
-                wrap.style.cssText =
-                    'display:block;margin:6px 0;padding:6px 9px;border-radius:5px;border:1px solid #ccc;cursor:pointer;';
-                wrap.innerHTML = `<input type="radio" name="dq" id="${id}" value="${i}" style="margin-right:6px;"> ${opt.text}`;
-                form.appendChild(wrap);
-            });
-
-            let timeLeft = 120;
-            const timerBox = dqOver.querySelector('#dqTimer');
-            timerBox.textContent = `⏳ Time left: 2:00`;
-            const tick = setInterval(() => {
-                --timeLeft;
-                const min = Math.floor(timeLeft / 60).toString();
-                const sec = (timeLeft % 60).toString().padStart(2, '0');
-                timerBox.textContent = `⏳ Time left: ${min}:${sec}`;
-                if (timeLeft <= 0) {
-                    clearInterval(tick);
-                    dqOver.querySelector('#dqSubmit').click();
-                }
-            }, 1000);
-
-            dqOver.querySelector('#dqSubmit').onclick = () => {
-                clearInterval(tick);
-                const chosen = form.querySelector('input[name="dq"]:checked');
-                const resBox = dqOver.querySelector('#dqResult');
-                if (!chosen) {
-                    resBox.textContent = '❗ No option selected!';
-                    return;
-                }
-                const idx = Number(chosen.value);
-                if (idx === correctIdx) {
-                    resBox.textContent = '✅ Correct!';
-                    resBox.style.color = '#2e7d32';
-                    addTokens(10); // ✅ reward tokens
-                } else {
-                    resBox.textContent = `❌ Wrong. Correct answer: ${options[correctIdx].text}`;
-                    resBox.style.color = '#c62828';
-                }
-                dqOver.querySelectorAll('input').forEach(inp => inp.disabled = true);
-                dqOver.querySelector('#dqSubmit').disabled = true;
-
-                // ✅ Mark as attempted
-                localStorage.setItem(aKey, today);
-                dqBtn.disabled = true;
-                dqBtn.style.background = '#ccc';
-                dqBtn.textContent = '✅ Attempted';
-            };
+        // Close button logic
+        matchingGameOverlay.querySelector('.close-btn').onclick = function() {
+          matchingGameOverlay.style.display = 'none';
+          matchingGameOverlay.innerHTML = ""; // Clean up
         };
+    };
 
-        if (localStorage.getItem(dKey) === today) {
-            const stored = JSON.parse(localStorage.getItem(qKey) || '{}');
-            return renderQuestion(stored);
-        }
+    /*************************************************
+     *  🔄 REFRESH BUTTON (in headerBar)
+     *************************************************/
+    const refreshBtn = document.createElement('button');
+    refreshBtn.textContent = '🔄 Refresh';
+    refreshBtn.style.cssText = 'padding:6px 14px;background:#f44336;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;';
+    headerBar.appendChild(refreshBtn);
 
-        try {
-            dqBtn.textContent = '⏳ Creating…';
-            dqBtn.disabled = true;
+    refreshBtn.onclick = () => {
+        location.reload();
+    };
 
-            const prompt = `
-Generate EXACTLY one aptitude multiple-choice question in the domain of logical reasoning or quantitative aptitude.
+    /*************************************************
+     *  🗑️ CLEAR LOCAL STORAGE BUTTON (for testing)
+     *************************************************/
+    const clearBtn = document.createElement('button');
+    clearBtn.textContent = '🗑️ Clear Data';
+    clearBtn.style.cssText = 'padding:6px 14px;background:#607d8b;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;';
+    headerBar.appendChild(clearBtn);
 
-• Return in this format (no extra commentary):
-Q) <question text>
-A) <option1>
-B) <option2>
-C) <option3>
-D) <option4>
-Answer: <capital letter of correct option>
-
-Use real aptitude style, medium difficulty.
-        `.trim();
-
-            const raw = await cohereQuery(prompt, 180);
-            dqBtn.textContent = '🗓️ Daily Question';
-            dqBtn.disabled = false;
-
-            const qMatch = raw.match(/^Q\)?\s*(.*)$/im);
-            const oMatch = raw.match(/^[A-D]\).*/gim);
-            const aMatch = raw.match(/Answer:\s*([A-D])/i);
-            if (!qMatch || !oMatch || oMatch.length !== 4 || !aMatch) {
-                return alert('⚠️ Could not parse question from Cohere.');
-            }
-
-            const qBlock = {
-                question: qMatch[1].trim(),
-                options: oMatch.map((l, i) => ({
-                    text: l.replace(/^[A-D]\)\s*/, '').trim(),
-                    isCorrect: 'ABCD'[i] === aMatch[1].toUpperCase()
-                }))
-            };
-
-            localStorage.setItem(qKey, JSON.stringify(qBlock));
-            localStorage.setItem(dKey, today);
-
-            renderQuestion(qBlock);
-        } catch (err) {
-            dqBtn.textContent = '🗓️ Daily Question';
-            dqBtn.disabled = false;
-            console.error(err);
-            alert('❌ Error generating daily question – see console.');
+    clearBtn.onclick = () => {
+        if (confirm("Are you sure you want to clear all local data?")) {
+            localStorage.clear();
+            alert("✅ All data cleared. Please refresh the page.");
         }
     };
+
+    /*************************************************
+     *  🎁 TOKEN REWARD BUTTON (for testing)
+     *************************************************/
+    const rewardBtn = document.createElement('button');
+    rewardBtn.textContent = '🎁 Add Tokens';
+    rewardBtn.style.cssText = 'padding:6px 14px;background:#8bc34a;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;';
+    headerBar.appendChild(rewardBtn);
+
+    rewardBtn.onclick = () => {
+        const amount = prompt("Enter token amount:", "10");
+        const delta = Number(amount);
+        if (!isNaN(delta)) {
+            addTokens(delta);
+            alert(`✅ Added ${delta} tokens. New balance: ${tokenPoints + delta}`);
+        } else {
+            alert("❌ Invalid amount.");
+        }
+    };
+
+    /*************************************************
+     *  INITIAL GREETING (after a delay)
+     *************************************************/
+    setTimeout(() => {
+        const greeting = `
+👋 Welcome to the AI Bookmarklet Tool!
+Here's what you can do:
+- Analyze Udemy courses with AI insights
+- Get smart notes and real-world analogies
+- Generate memes and test your knowledge with quizzes
+- Suggest projects based on course modules
+- Evaluate your GitHub projects with AI feedback
+- And much more!
+
+👉 Start by exploring the buttons above. Enjoy!
+`.trim();
+
+        const ta = createWindow('Welcome!', true);
+        ta.value = greeting;
+    }, 500);
 
     /*************************************************
      *  Attach primary button to page
