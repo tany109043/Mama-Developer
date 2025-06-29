@@ -358,14 +358,13 @@
     mini.style.cssText = [
         'display:none',
         'position:absolute',                 // absolute for dynamic positioning
-        'margin-left:10px',
+        'width:150px',
         'padding:12px',
         'background:#fff',
         'border:2px solid #888',
         'border-radius:10px',
         'box-shadow:0 6px 18px rgba(0,0,0,.35)',
         'z-index:10000',
-        'float:right',
         'font-family:sans-serif'
     ].join(';');
     const makeInnerBtn = (label, bg) => {
