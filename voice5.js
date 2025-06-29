@@ -7,7 +7,7 @@
 // ==/UserScript==
 
 (async () => {
-  const cohereKey = "zXH8KUSA3ncfZcxvIAZx5boAlGlTirN6LJmp706Q";
+  const cohereKey = "XhLvmWU0xamB9rrSxqYiV5dleRnCZLdKdRgU0sgI";
   const assemblyKey = "5f3f5ee81a4d40f290c3b7cba3c07ead";
 
   const button = document.createElement("button");
