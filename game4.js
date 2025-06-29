@@ -1670,27 +1670,6 @@ Only output the JSON — no extra text.
         };
     };
     /*************************************************
-     *  INITIAL GREETING (after a delay)
-     *************************************************/
-    setTimeout(() => {
-        const greeting = `
-👋 Welcome to the AI Bookmarklet Tool!
-Here's what you can do:
-- Analyze Udemy courses with AI insights
-- Get smart notes and real-world analogies
-- Generate memes and test your knowledge with quizzes
-- Suggest projects based on course modules
-- Evaluate your GitHub projects with AI feedback
-- And much more!
-
-👉 Start by exploring the buttons above. Enjoy!
-`.trim();
-
-        const ta = createWindow('Welcome!', true);
-        ta.value = greeting;
-    }, 500);
-
-    /*************************************************
      *  Attach primary button to page
      *************************************************/
     document.body.appendChild(mainBtn);
