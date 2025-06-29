@@ -223,31 +223,8 @@
     bodyWrap.appendChild(dividerThree);
 
     const chatResult = document.createElement('div');
+    chatResult.id = 'chatResult';
     bodyWrap.appendChild(chatResult);
-
-    // Style the "Ask Anything" block like the course analysis block
-    chatResult.style.cssText = `
-        margin: 0 auto;
-        max-width: 95%;
-        background: linear-gradient(135deg, #e3f0ff 0%, #f9f6ff 100%);
-        padding: 22px 32px 22px 32px;
-        border-radius: 12px;
-        border: 1px solid #b6c7e6;
-        box-sizing: border-box;
-        text-align: justify;
-        font-family: inherit;
-        font-size: 15px;
-        line-height: 1.7;
-        color: #222;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        box-shadow: 0 6px 24px rgba(80,120,200,0.10);
-        min-height: 180px;
-    `;
-
-    // Optional: Add a heading for clarity
-    chatResult.innerHTML = `<div style="font-weight:bold;text-align:center;margin-bottom:18px;">Ask Me Anything</div>`;
 
     // ▸ BOTTOM BAR (Ask + Meme) fixed inside panel
     const bottomBar = document.createElement('div');
@@ -560,7 +537,7 @@ In-depth Details
         </div>
     </div>
 `;
-         /***** 2️⃣ Modules List *****/
+        /***** 2️⃣ Modules List *****/
         const mods = [...document.querySelectorAll('div[data-purpose="curriculum-section-container"] h3')];
         if (!mods.length) {
             modulesBox.innerHTML = `
@@ -599,7 +576,7 @@ In-depth Details
         box-sizing: border-box;
         font-family: inherit;
         font-size: 15px;
-        line-height: 1.7;
+        line-height:1.7;
         color: #222;
         display: flex;
         flex-direction: column;
@@ -1286,20 +1263,20 @@ Format strictly:
         <b style="display:block;text-align:center;font-size:18px;margin-bottom:12px;">🚀 Project Ideas:</b>
         <div style="width:100%;max-width:500px;text-align:left;">
             ${txt
-                .replace(/[#*]/g, '')
-                .replace(/\n{2,}/g, '\n') // Remove extra blank lines
-                .split(/\n+/)
-                .map(line => line.trim())
-                .filter(line => line)
-                .map(line => {
-                    const match = line.match(/^(\d+\.\s*)([^:]+):\s*(.*)$/);
-                    if (match) {
-                        const [_, number, title, desc] = match;
-                        return `<div style="margin-bottom:10px;"><b>${number}${title}</b>: ${desc}</div>`;
-                    }
-                    return `<div style="margin-bottom:10px;">${line}</div>`;
-                })
-                .join('')}
+                        .replace(/[#*]/g, '')
+                        .replace(/\n{2,}/g, '\n') // Remove extra blank lines
+                        .split(/\n+/)
+                        .map(line => line.trim())
+                        .filter(line => line)
+                        .map(line => {
+                            const match = line.match(/^(\d+\.\s*)([^:]+):\s*(.*)$/);
+                            if (match) {
+                                const [_, number, title, desc] = match;
+                                return `<div style="margin-bottom:10px;"><b>${number}${title}</b>: ${desc}</div>`;
+                            }
+                            return `<div style="margin-bottom:10px;">${line}</div>`;
+                        })
+                        .join('')}
         </div>
     </div>
 `;
@@ -1342,7 +1319,41 @@ Format strictly:
 
                 try {
                     const feedback = await cohereQuery(evalPrompt, 500);
-                    evalResult.innerHTML = '✅ <b>Evaluation:</b><br><br>' + feedback.replace(/\n/g, '<br>');
+                    evalResult.innerHTML = `
+    <div style="
+        margin: 0 auto;
+        max-width: 95%;
+        background: linear-gradient(135deg, #e3f0ff 0%, #f9f6ff 100%);
+        padding: 22px 32px 22px 32px;
+        border-radius: 12px;
+        border: 1px solid #b6c7e6;
+        box-sizing: border-box;
+        text-align: justify;
+        font-family: inherit;
+        font-size: 15px;
+        line-height: 1.7;
+        color: #222;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        box-shadow: 0 6px 24px rgba(80,120,200,0.10);
+    ">
+        <div style="
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+            text-align: justify;
+            word-break: break-word;
+        ">
+            <div style="font-weight:bold;text-align:center;margin-bottom:18px;">✅ Evaluation</div>
+            ${feedback
+                .replace(/^Suggestions:/im, '<b>Suggestions:</b>')
+                .replace(/^Rating:/im, '<b>Rating:</b>')
+                .replace(/\n/g, '<br>')
+            }
+        </div>
+    </div>
+                    `;
                 } catch (err) {
                     evalResult.innerHTML =
                         '<span style="color:red">❌ Error evaluating project – see console.</span>';
@@ -1362,16 +1373,12 @@ Format strictly:
         const q = askInput.value.trim();
         if (!q) return;
         askBtn.disabled = true;
-        chatResult.innerHTML += `<div style="width:100%;max-width:700px;margin:0 auto;text-align:justify;word-break:break-word;">
-            <b>🔸 You:</b> ${q.replace(/\n/g, '<br>')}
-            <br><i>⏳ …thinking</i>
-        </div>`;
+        chatResult.insertAdjacentHTML('beforeend', '<br><b>🔸 You:</b> ' + q.replace(/\n/g, '<br>'));
+        chatResult.insertAdjacentHTML('beforeend', '<br><i>⏳ …thinking</i>');
         bodyWrap.scrollTop = bodyWrap.scrollHeight;
         try {
             const ans = await cohereQuery(q);
-            chatResult.innerHTML += `<div style="width:100%;max-width:700px;margin:0 auto;text-align:justify;word-break:break-word;">
-                <b>🤖 GPT:</b> ${ans.replace(/\n/g, '<br>')}
-            </div>`;
+            chatResult.insertAdjacentHTML('beforeend', '<br><b>🤖 GPT:</b> ' + ans.replace(/\n/g, '<br>'));
         } finally {
             askBtn.disabled = false;
             askInput.value = '';
@@ -1496,36 +1503,36 @@ Only output the JSON — no extra text.
     };
 
 
-/*************************************************
- *  🗓️ DAILY QUESTION HANDLER (logic reused)
- *************************************************/
-dqBtn.onclick = async () => {
-    const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
-    const qKey = 'dailyQ-data';
-    const dKey = 'dailyQ-date';
-    const aKey = 'dailyQ-done';
+    /*************************************************
+     *  🗓️ DAILY QUESTION HANDLER (logic reused)
+     *************************************************/
+    dqBtn.onclick = async () => {
+        const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+        const qKey = 'dailyQ-data';
+        const dKey = 'dailyQ-date';
+        const aKey = 'dailyQ-done';
 
-    // ✅ Disable btn if already done
-    if (localStorage.getItem(aKey) === today) {
-        dqBtn.disabled = true;
-        dqBtn.style.background = '#ccc';
-        dqBtn.textContent = '✅ Attempted';
-        return;
-    }
+        // ✅ Disable btn if already done
+        if (localStorage.getItem(aKey) === today) {
+            dqBtn.disabled = true;
+            dqBtn.style.background = '#ccc';
+            dqBtn.textContent = '✅ Attempted';
+            return;
+        }
 
-    // helper to render the stored or freshly fetched question
-    const renderQuestion = (qBlock) => {
-        // build overlay (1-per-session)
-        let dqOver = document.getElementById('dailyQOverlay');
-        if (!dqOver) {
-            dqOver = document.createElement('div');
-            dqOver.id = 'dailyQOverlay';
-            dqOver.style.cssText =
-                'display:flex;flex-direction:column;align-items:center;position:fixed;top:10%;left:50%;' +
-                'transform:translateX(-50%);width:500px;max-width:90%;padding:22px;background:#fff;' +
-                'border:5px solid #3f51b5;border-radius:14px;z-index:10000;box-shadow:0 10px 25px rgba(0,0,0,.35);' +
-                'font-family:sans-serif;';
-            dqOver.innerHTML = `
+        // helper to render the stored or freshly fetched question
+        const renderQuestion = (qBlock) => {
+            // build overlay (1-per-session)
+            let dqOver = document.getElementById('dailyQOverlay');
+            if (!dqOver) {
+                dqOver = document.createElement('div');
+                dqOver.id = 'dailyQOverlay';
+                dqOver.style.cssText =
+                    'display:flex;flex-direction:column;align-items:center;position:fixed;top:10%;left:50%;' +
+                    'transform:translateX(-50%);width:500px;max-width:90%;padding:22px;background:#fff;' +
+                    'border:5px solid #3f51b5;border-radius:14px;z-index:10000;box-shadow:0 10px 25px rgba(0,0,0,.35);' +
+                    'font-family:sans-serif;';
+                dqOver.innerHTML = `
                 <button style="position:absolute;top:8px;right:12px;font-size:16px;border:none;background:#f44336;
                         color:white;padding:4px 10px;border-radius:4px;cursor:pointer;"
                         onclick="this.parentElement.remove()">✖</button>
@@ -1536,81 +1543,81 @@ dqBtn.onclick = async () => {
                         border:none;border-radius:5px;cursor:pointer;">Submit</button>
                 <div id="dqResult" style="margin-top:14px;font-weight:bold;text-align:center;"></div>
             `;
-            document.body.appendChild(dqOver);
+                document.body.appendChild(dqOver);
+            }
+
+            // fill form
+            const form = dqOver.querySelector('#dqForm');
+            form.innerHTML = '';
+            const { question, options } = qBlock;
+            const correctIdx = options.findIndex(o => o.isCorrect);
+
+            const qEl = document.createElement('div');
+            qEl.style.fontWeight = 'bold';
+            qEl.textContent = question;
+            form.appendChild(qEl);
+
+            options.forEach((opt, i) => {
+                const id = `dqo${i}`;
+                const wrap = document.createElement('label');
+                wrap.style.cssText =
+                    'display:block;margin:6px 0;padding:6px 9px;border-radius:5px;border:1px solid #ccc;cursor:pointer;';
+                wrap.innerHTML = `<input type="radio" name="dq" id="${id}" value="${i}" style="margin-right:6px;"> ${opt.text}`;
+                form.appendChild(wrap);
+            });
+
+            let timeLeft = 120;
+            const timerBox = dqOver.querySelector('#dqTimer');
+            timerBox.textContent = `⏳ Time left: 2:00`;
+            const tick = setInterval(() => {
+                --timeLeft;
+                const min = Math.floor(timeLeft / 60).toString();
+                const sec = (timeLeft % 60).toString().padStart(2, '0');
+                timerBox.textContent = `⏳ Time left: ${min}:${sec}`;
+                if (timeLeft <= 0) {
+                    clearInterval(tick);
+                    dqOver.querySelector('#dqSubmit').click();
+                }
+            }, 1000);
+
+            dqOver.querySelector('#dqSubmit').onclick = () => {
+                clearInterval(tick);
+                const chosen = form.querySelector('input[name="dq"]:checked');
+                const resBox = dqOver.querySelector('#dqResult');
+                if (!chosen) {
+                    resBox.textContent = '❗ No option selected!';
+                    return;
+                }
+                const idx = Number(chosen.value);
+                if (idx === correctIdx) {
+                    resBox.textContent = '✅ Correct!';
+                    resBox.style.color = '#2e7d32';
+                    addTokens(10); // ✅ reward tokens
+                } else {
+                    resBox.textContent = `❌ Wrong. Correct answer: ${options[correctIdx].text}`;
+                    resBox.style.color = '#c62828';
+                }
+                dqOver.querySelectorAll('input').forEach(inp => inp.disabled = true);
+                dqOver.querySelector('#dqSubmit').disabled = true;
+
+                // ✅ Mark as attempted
+                localStorage.setItem(aKey, today);
+                dqBtn.disabled = true;
+                dqBtn.style.background = '#ccc';
+                dqBtn.textContent = '✅ Attempted';
+            };
+        };
+
+        if (localStorage.getItem(dKey) === today) {
+            const stored = JSON.parse(localStorage.getItem(qKey) || '{}');
+            return renderQuestion(stored);
         }
 
-        // fill form
-        const form = dqOver.querySelector('#dqForm');
-        form.innerHTML = '';
-        const { question, options } = qBlock;
-        const correctIdx = options.findIndex(o => o.isCorrect);
-
-        const qEl = document.createElement('div');
-        qEl.style.fontWeight = 'bold';
-        qEl.textContent = question;
-        form.appendChild(qEl);
-
-        options.forEach((opt, i) => {
-            const id = `dqo${i}`;
-            const wrap = document.createElement('label');
-            wrap.style.cssText =
-                'display:block;margin:6px 0;padding:6px 9px;border-radius:5px;border:1px solid #ccc;cursor:pointer;';
-            wrap.innerHTML = `<input type="radio" name="dq" id="${id}" value="${i}" style="margin-right:6px;"> ${opt.text}`;
-            form.appendChild(wrap);
-        });
-
-        let timeLeft = 120;
-        const timerBox = dqOver.querySelector('#dqTimer');
-        timerBox.textContent = `⏳ Time left: 2:00`;
-        const tick = setInterval(() => {
-            --timeLeft;
-            const min = Math.floor(timeLeft / 60).toString();
-            const sec = (timeLeft % 60).toString().padStart(2, '0');
-            timerBox.textContent = `⏳ Time left: ${min}:${sec}`;
-            if (timeLeft <= 0) {
-                clearInterval(tick);
-                dqOver.querySelector('#dqSubmit').click();
-            }
-        }, 1000);
-
-        dqOver.querySelector('#dqSubmit').onclick = () => {
-            clearInterval(tick);
-            const chosen = form.querySelector('input[name="dq"]:checked');
-            const resBox = dqOver.querySelector('#dqResult');
-            if (!chosen) {
-                resBox.textContent = '❗ No option selected!';
-                return;
-            }
-            const idx = Number(chosen.value);
-            if (idx === correctIdx) {
-                resBox.textContent = '✅ Correct!';
-                resBox.style.color = '#2e7d32';
-                addTokens(10); // ✅ reward tokens
-            } else {
-                resBox.textContent = `❌ Wrong. Correct answer: ${options[correctIdx].text}`;
-                resBox.style.color = '#c62828';
-            }
-            dqOver.querySelectorAll('input').forEach(inp => inp.disabled = true);
-            dqOver.querySelector('#dqSubmit').disabled = true;
-
-            // ✅ Mark as attempted
-            localStorage.setItem(aKey, today);
+        try {
+            dqBtn.textContent = '⏳ Creating…';
             dqBtn.disabled = true;
-            dqBtn.style.background = '#ccc';
-            dqBtn.textContent = '✅ Attempted';
-        };
-    };
 
-    if (localStorage.getItem(dKey) === today) {
-        const stored = JSON.parse(localStorage.getItem(qKey) || '{}');
-        return renderQuestion(stored);
-    }
-
-    try {
-        dqBtn.textContent = '⏳ Creating…';
-        dqBtn.disabled = true;
-
-        const prompt = `
+            const prompt = `
 Generate EXACTLY one aptitude multiple-choice question in the domain of logical reasoning or quantitative aptitude.
 
 • Return in this format (no extra commentary):
@@ -1624,40 +1631,40 @@ Answer: <capital letter of correct option>
 Use real aptitude style, medium difficulty.
         `.trim();
 
-        const raw = await cohereQuery(prompt, 180);
-        dqBtn.textContent = '🗓️ Daily Question';
-        dqBtn.disabled = false;
+            const raw = await cohereQuery(prompt, 180);
+            dqBtn.textContent = '🗓️ Daily Question';
+            dqBtn.disabled = false;
 
-        const qMatch = raw.match(/^Q\)?\s*(.*)$/im);
-        const oMatch = raw.match(/^[A-D]\).*/gim);
-        const aMatch = raw.match(/Answer:\s*([A-D])/i);
-        if (!qMatch || !oMatch || oMatch.length !== 4 || !aMatch) {
-            return alert('⚠️ Could not parse question from Cohere.');
+            const qMatch = raw.match(/^Q\)?\s*(.*)$/im);
+            const oMatch = raw.match(/^[A-D]\).*/gim);
+            const aMatch = raw.match(/Answer:\s*([A-D])/i);
+            if (!qMatch || !oMatch || oMatch.length !== 4 || !aMatch) {
+                return alert('⚠️ Could not parse question from Cohere.');
+            }
+
+            const qBlock = {
+                question: qMatch[1].trim(),
+                options: oMatch.map((l, i) => ({
+                    text: l.replace(/^[A-D]\)\s*/, '').trim(),
+                    isCorrect: 'ABCD'[i] === aMatch[1].toUpperCase()
+                }))
+            };
+
+            localStorage.setItem(qKey, JSON.stringify(qBlock));
+            localStorage.setItem(dKey, today);
+
+            renderQuestion(qBlock);
+        } catch (err) {
+            dqBtn.textContent = '🗓️ Daily Question';
+            dqBtn.disabled = false;
+            console.error(err);
+            alert('❌ Error generating daily question – see console.');
         }
+    };
 
-        const qBlock = {
-            question: qMatch[1].trim(),
-            options: oMatch.map((l, i) => ({
-                text: l.replace(/^[A-D]\)\s*/, '').trim(),
-                isCorrect: 'ABCD'[i] === aMatch[1].toUpperCase()
-            }))
-        };
+    /*************************************************
+     *  Attach primary button to page
+     *************************************************/
+    document.body.appendChild(mainBtn);
 
-        localStorage.setItem(qKey, JSON.stringify(qBlock));
-        localStorage.setItem(dKey, today);
-
-        renderQuestion(qBlock);
-    } catch (err) {
-        dqBtn.textContent = '🗓️ Daily Question';
-        dqBtn.disabled = false;
-        console.error(err);
-        alert('❌ Error generating daily question – see console.');
-    }
-};
-
-/*************************************************
- *  Attach primary button to page
- *************************************************/
-document.body.appendChild(mainBtn);
-
-}) ();
+})();
