@@ -1651,8 +1651,14 @@ Only output the JSON — no extra text.
             clearInterval(timer);
             finalScore = score;
             setTimeout(() => {
-              alert(`🎉 Game Over! You matched ${finalScore}/${pairs.length} correctly.`);
-              console.log("✅ Final Score:", finalScore);
+              // Calculate token change: +score for correct, -1 for each wrong (disabled) option
+              const totalTerms = pairs.length;
+              const disabledCount = Array.from(matchingGameOverlay.querySelectorAll('.term.disabled')).length;
+              const tokenDelta = finalScore - disabledCount;
+              if (tokenDelta !== 0) addTokens(tokenDelta);
+
+              alert(`🎉 Game Over! You matched ${finalScore}/${totalTerms} correctly.\n\nTokens ${tokenDelta >= 0 ? 'added' : 'deducted'}: ${tokenDelta}`);
+              console.log("✅ Final Score:", finalScore, "Token change:", tokenDelta);
             }, 100);
           }
         }
