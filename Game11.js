@@ -1494,224 +1494,188 @@ Only output the JSON — no extra text.
         addTokens(-5);
     };
 
+// === ONE‑FILE UDEMY MATCHING‑GAME BOOKMARKLET v2 ===
+// 2025‑06‑29 – includes token counter, persistent leaderboard, and
+// optional follow‑up MCQ quiz.
+// --------------------------------------------------------------
+// ▸ Paste this entire file into GitHub raw, jsDelivr, or directly inside
+//   a bookmarklet loader. Example bookmarklet wrapper:
+//   javascript:(function(){var s=document.createElement('script');
+//   s.src='https://cdn.jsdelivr.net/gh/<user>/<repo>@main/Game.js?t='+Date.now();
+//   document.body.appendChild(s);} )();
+// ▸ Insert your Cohere API key below; everything else is self‑contained.
 
- // === ONE‑FILE MATCHING‑GAME BOOKMARKLET ===
-// Drop this whole file on jsDelivr / raw.githubusercontent OR paste it
-// directly inside a bookmarklet.  It creates its own 🎮 button, scrapes
-// visible Udemy module titles, asks Cohere for definitions, and handles
-// token accounting – no extra loader required.
-//
-// ▸ Insert your Cohere key below.  Everything else works out‑of‑the‑box.
+(function(){
+  /* -------------------- CONFIG & CONSTANTS -------------------- */
+  const COHERE_API_KEY = "YOUR_COHERE_API_KEY_HERE"; // ← put your key
+  const MAX_PAIRS   = 5;
+  const TIME_LIMIT  = 30; // seconds
+  const TOKEN_KEY   = "matchingGameTokens";
+  const LB_KEY      = "matchingGameLeaderboard"; // leaderboard storage
 
-(function () {
-  /* --------------------------- CONFIGURATION --------------------------- */
-  const COHERE_API_KEY = "XhLvmWU0xamB9rrSxqYiV5dleRnCZLdKdRgU0sgI";   // ←‑‑‑ put your key
-  const MAX_PAIRS      = 5;     // pairs to request/game length
-  const TIME_LIMIT     = 30;    // seconds per round
-  const TOKEN_KEY      = "matchingGameTokens"; // localStorage balance
-
-  /* -------------------------- TOKEN UTILITIES -------------------------- */
-  function addTokens(delta) {
-    const current = parseInt(localStorage.getItem(TOKEN_KEY) || "0", 10);
-    const next = Math.max(0, current + delta);
-    localStorage.setItem(TOKEN_KEY, next);
-    console.log(`[Matching‑Game] tokens ${delta>=0?"+":""}${delta} → ${next}`);
+  /* --------------------- TOKEN UTILITIES ---------------------- */
+  function getTokens(){return parseInt(localStorage.getItem(TOKEN_KEY)||"0",10);}  
+  function addTokens(delta){
+    const next=Math.max(0,getTokens()+delta);
+    localStorage.setItem(TOKEN_KEY,next);
+    updateTokenBadge();
+  }
+  function updateTokenBadge(){
+    let badge=document.getElementById("mgTokenBadge");
+    if(!badge){return;}
+    badge.textContent=`🪙 ${getTokens()}`;
   }
 
-  /* --------------------------- UDEMY SCRAPER --------------------------- */
-  function getUdemyModuleTitles() {
-    const sel = '[data-purpose="course-item-title"], .lecture-title-text, [data-purpose="curriculum-section-title"]';
-    const titles = new Set();
-    document.querySelectorAll(sel).forEach(el => {
-      const txt = el.textContent.trim();
-      if (txt) titles.add(txt);
-    });
-    return [...titles];
+  /* ------------------ LEADERBOARD UTILITIES ------------------- */
+  function saveLeaderboard(score){
+    const lb=JSON.parse(localStorage.getItem(LB_KEY)||"[]");
+    lb.push({score,ts:Date.now()});
+    lb.sort((a,b)=>b.score-a.score);
+    if(lb.length>5)lb.length=5;
+    localStorage.setItem(LB_KEY,JSON.stringify(lb));
+  }
+  function formattedLeaderboard(){
+    const lb=JSON.parse(localStorage.getItem(LB_KEY)||"[]");
+    if(!lb.length) return "No scores yet.";
+    return lb.map((e,i)=>`${i+1}. ${new Date(e.ts).toLocaleDateString()} — ${e.score}`).join("\n");
   }
 
-  /* ---------------------------- COHERE ASK ----------------------------- */
-  async function fetchPairs(modules) {
-    if (!COHERE_API_KEY || COHERE_API_KEY.startsWith("YOUR_")) {
-      console.warn("[Matching‑Game] Cohere key missing – using fallback pairs.");
-      return [];
-    }
-    const prompt = `Return up to ${MAX_PAIRS} JSON objects with 'term' and 'definition' fields (≤7 words) covering these Udemy module titles. Only output raw minified JSON array.\nModules:\n${modules.map((m,i)=>`${i+1}. ${m}`).join("\n")}`;
+  /* ------------------- SCRAPE UDEMY MODULES ------------------- */
+  function getUdemyModuleTitles(){
+    const sel='[data-purpose="course-item-title"],.lecture-title-text,[data-purpose="curriculum-section-title"]';
+    const set=new Set();
+    document.querySelectorAll(sel).forEach(el=>{const t=el.textContent.trim();if(t)set.add(t);});
+    return [...set];
+  }
 
-    try {
-      const res = await fetch("https://api.cohere.ai/v1/generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${COHERE_API_KEY}`
-        },
-        body: JSON.stringify({
-          model: "command-r-plus",
-          max_tokens: 120,
-          temperature: 0.4,
-          prompt
-        })
+  /* --------------------- COHERE GENERATION -------------------- */
+  async function fetchPairs(modules){
+    if(!COHERE_API_KEY||COHERE_API_KEY.startsWith("YOUR_"))return [];
+    const prompt=`Return up to ${MAX_PAIRS} JSON objects with 'term' and 'definition' (≤7 words) covering these Udemy modules. ONLY raw minified JSON array.\nModules:\n${modules.map((m,i)=>`${i+1}. ${m}`).join("\n")}`;
+    try{
+      const res=await fetch("https://api.cohere.ai/v1/generate",{
+        method:"POST",
+        headers:{"Content-Type":"application/json","Authorization":"Bearer "+COHERE_API_KEY},
+        body:JSON.stringify({model:"command-r-plus",max_tokens:120,temperature:0.3,prompt})
       });
-      const data = await res.json();
-      const txt  = data?.generations?.[0]?.text?.trim() || "[]";
-      const arr  = JSON.parse(txt);
-      return Array.isArray(arr) ? arr.slice(0, MAX_PAIRS) : [];
-    } catch (e) {
-      console.warn("[Matching‑Game] Cohere error", e);
-      return [];
-    }
+      const js=(await res.json())?.generations?.[0]?.text?.trim()||"[]";
+      const arr=JSON.parse(js);
+      return Array.isArray(arr)?arr.slice(0,MAX_PAIRS):[];
+    }catch(e){console.warn("Cohere error",e);return [];}  }
+
+  /* -------------- FALLBACK CREATIVE PAIR GENERATION ------------ */
+  function creativeFallbackPairs(){
+    const pools=[
+      [
+        {term:"Closure",definition:"JS function with scope"},
+        {term:"Promise",definition:"JS async placeholder"},
+        {term:"Hoisting",definition:"JS var lifting"},
+        {term:"map()",definition:"Array transform method"},
+        {term:"NaN",definition:"Not‑a‑Number value"}
+      ],[
+        {term:"List",definition:"Python ordered collection"},
+        {term:"Dict",definition:"Python key‑value type"},
+        {term:"Lambda",definition:"Anonymous function"},
+        {term:"PEP 8",definition:"Python style guide"},
+        {term:"venv",definition:"Isolated env"}
+      ],[
+        {term:"findOne",definition:"MongoDB single query"},
+        {term:"$match",definition:"Aggregation stage"},
+        {term:"Atlas",definition:"Mongo cloud"},
+        {term:"Index",definition:"Speedy search"},
+        {term:"Replica",definition:"Data copy"}
+      ]
+    ];
+    return pools[Math.floor(Math.random()*pools.length)];
   }
 
-  /* --------------------------- GAME BOOTSTRAP -------------------------- */
-  function ensureLauncherBtn() {
-    if (document.getElementById("matchingGameLauncher")) return;
-    const btn = document.createElement("button");
-    btn.id = "matchingGameLauncher";
-    btn.textContent = "🎮 Matching Game";
-    btn.style.cssText = "padding:6px 14px;background:#009688;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;position:fixed;bottom:24px;right:24px;z-index:10002;box-shadow:0 3px 12px rgba(0,0,0,0.25);";
-    btn.onclick = () => showGame();
+  /* --------------------- LAUNCHER BUTTON ---------------------- */
+  function ensureLauncher(){
+    if(document.getElementById("matchingGameLauncher"))return;
+    const btn=document.createElement("button");
+    btn.id="matchingGameLauncher";
+    btn.textContent="🎮 Matching Game";
+    btn.style.cssText="padding:6px 14px;background:#009688;color:#fff;border:none;border-radius:6px;font-size:13px;position:fixed;bottom:24px;right:24px;z-index:10002;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.25);";
+    btn.onclick=showGame;
     document.body.appendChild(btn);
+
+    // token badge
+    const badge=document.createElement("span");
+    badge.id="mgTokenBadge";
+    badge.style.cssText="position:fixed;bottom:60px;right:24px;background:#ffeb3b;color:#000;padding:4px 8px;border-radius:12px;font-size:12px;z-index:10002;box-shadow:0 2px 6px rgba(0,0,0,.2);";
+    document.body.appendChild(badge);
+    updateTokenBadge();
   }
 
-  /* --------------------------- GAME RENDER ----------------------------- */
-  async function showGame() {
-    // Backdrop
-    const overlay = document.createElement("div");
-    overlay.id = "matchingGameOverlay";
-    overlay.style.cssText = "display:flex;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:10001;align-items:center;justify-content:center;";
-    overlay.onclick = e => { if (e.target === overlay) close(); };
-    document.body.appendChild(overlay);
+  /* -------------------------- SHOW GAME ------------------------ */
+  async function showGame(){
+    const ov=document.createElement("div");
+    ov.id="mgOverlay";
+    ov.style.cssText="display:flex;position:fixed;inset:0;background:rgba(0,0,0,.25);align-items:center;justify-content:center;z-index:10003;";
+    ov.onclick=e=>{if(e.target===ov)close();};
+    document.body.appendChild(ov);
+    ov.innerHTML='<div class="mgContainer" style="background:#fff;padding:32px;border-radius:16px;font-family:sans-serif;min-width:260px;box-shadow:0 6px 24px rgba(0,0,0,.15);display:flex;flex-direction:column;align-items:center;gap:12px;">Loading…</div>';
 
-    // Container (temporary loading text)
-    overlay.innerHTML = `<div class=\"game-container\" style=\"background:#fff;padding:36px 28px;border-radius:16px;min-width:260px;font-family:sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.15);display:flex;flex-direction:column;align-items:center;gap:14px;\">Loading…</div>`;
+    const modules=getUdemyModuleTitles();
+    let pairs=await fetchPairs(modules);
+    if(!pairs.length)pairs=creativeFallbackPairs();
 
-    /* ---- Build pairs ---- */
-    const modules = getUdemyModuleTitles();
-    let pairs = await fetchPairs(modules);
-    if (!pairs.length) {
-      pairs = [ // fallback demo list
-        { term: "ObjectId", definition: "MongoDB unique ID" },
-        { term: "insert_one", definition: "Insert one doc" },
-        { term: "Pandas", definition: "Python data lib" },
-        { term: "update_one", definition: "Update doc" },
-        { term: "Dictionary", definition: "Key‑value type" }
-      ];
-    }
-
-    buildGameUI(overlay, pairs);
+    buildGameUI(ov,pairs);
   }
 
-  /* ---------------------------- GAME PLAY ------------------------------ */
-  function buildGameUI(overlay, pairs) {
-    let score = 0, matched = 0, timeLeft = TIME_LIMIT;
+  /* ----------------------- BUILD GAME UI ----------------------- */
+  function buildGameUI(ov,pairs){
+    let score=0,matched=0,time=TIME_LIMIT;
 
-    overlay.querySelector(".game-container").outerHTML = `
-    <div class=\"game-container\">  
-      <div class=\"close-btn\">&times;</div>
-      <h2 style=\"margin:4px 0 12px;font-size:18px;\">🔁 Match Course Terms</h2>
-      <div id=\"scoreBoard\">⏱ <span id=\"timer\">${TIME_LIMIT}</span>s | ✅ <span id=\"score\">0</span>/${pairs.length}</div>
-      <div id=\"game\" style=\"display:flex;flex-wrap:wrap;gap:12px;justify-content:center;\"></div>
-      <p style=\"font-size:12px;color:#555;text-align:center;margin:4px 0 0;\">Drag the terms onto their definitions.<br>Wrong drops disable an option.</p>
-    </div>`;
+    ov.querySelector(".mgContainer").outerHTML=`<div class="mgContainer"><div class="closeBtn">&times;</div><h2 style="margin:4px 0 8px;font-size:18px;">🔁 Match the Terms</h2><div id="sb">⏱ <span id="tm">${TIME_LIMIT}</span>s | ✅ <span id="sc">0</span>/${pairs.length}</div><div id="arena" style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;"></div><p style="font-size:12px;color:#555;text-align:center;">Drag terms onto definitions.<br>Wrong drops disable the option.</p></div>`;
+    const cont=ov.querySelector(".mgContainer");
+    cont.style.cssText="background:linear-gradient(135deg,#e3f0ff 0%,#f9f6ff 100%);border:1.5px solid #b6c7e6;border-radius:16px;min-width:270px;max-width:420px;position:relative;padding:32px 24px;";
+    const arena=cont.querySelector("#arena");
 
-    const container = overlay.querySelector(".game-container");
-    const gameDiv   = container.querySelector("#game");
-
-    // --- CSS (one‑time) ---
-    if (!document.getElementById("matchingGameStyles")) {
-      const css = `
-      .game-container{background:linear-gradient(135deg,#e3f0ff 0%,#f9f6ff 100%);border:1.5px solid #b6c7e6;border-radius:16px;box-shadow:0 6px 24px rgba(80,120,200,0.10);position:relative;min-width:270px;max-width:420px}
-      .term,.box{width:140px;min-height:32px;margin:4px;padding:6px 8px;font-size:13px;border-radius:6px;border:1.5px dashed #bbb;background:#fff;box-sizing:border-box;cursor:move;transition:background .3s;text-align:center;user-select:none}
-      .term{background:#e3f2fd;font-weight:500}
-      .box.correct{background:#d0f0c0;border-color:#4caf50}
-      .box.wrong{background:#fddede;border-color:#f44336}
-      #scoreBoard{margin:10px 0;font-size:14px;color:#333;background:#fff;border-radius:8px;padding:6px 12px;box-shadow:0 2px 8px rgba(80,120,200,.06)}
-      #timer{font-weight:bold;color:#e53935}
-      .term.disabled{background:#eee !important;color:#aaa !important;border-color:#ddd !important;text-decoration:line-through;cursor:not-allowed !important}
-      .close-btn{position:absolute;top:10px;right:18px;font-size:22px;font-weight:bold;color:#888;background:#fff;border:1.5px solid #b6c7e6;border-radius:50%;width:32px;height:32px;line-height:28px;text-align:center;cursor:pointer;box-shadow:0 2px 8px rgba(80,120,200,.10);transition:background .2s,color .2s}
-      .close-btn:hover{background:#f44336;color:#fff;border-color:#f44336}`;
-      const style = document.createElement("style");
-      style.id = "matchingGameStyles";
-      style.textContent = css;
-      document.head.appendChild(style);
+    // css style tag once
+    if(!document.getElementById("mgStyles")){
+      const st=document.createElement("style");
+      st.id="mgStyles";
+      st.textContent=`.term,.box{width:140px;min-height:32px;margin:4px;padding:6px 8px;font-size:13px;border-radius:6px;border:1.5px dashed #bbb;background:#fff;cursor:move;text-align:center;user-select:none}.term{background:#e3f2fd;font-weight:500}.box.correct{background:#d0f0c0;border-color:#4caf50}.box.wrong{background:#fddede;border-color:#f44336}.term.disabled{background:#eee !important;color:#aaa !important;border-color:#ddd !important;text-decoration:line-through;cursor:not-allowed !important}.closeBtn{position:absolute;top:10px;right:18px;font-size:22px;font-weight:bold;color:#888;background:#fff;border:1.5px solid #b6c7e6;border-radius:50%;width:32px;height:32px;line-height:28px;text-align:center;cursor:pointer;}.closeBtn:hover{background:#f44336;color:#fff;border-color:#f44336}`;
+      document.head.appendChild(st);
     }
 
-    // --- Terms & boxes ---
-    const termEls = {};
-    [...pairs].sort(() => Math.random() - 0.5).forEach(p => {
-      const d = document.createElement("div");
-      d.className = "term";
-      d.draggable  = true;
-      d.textContent= p.term;
-      d.id = `term-${p.term.replace(/\s+/g,"-")}`;
-      d.ondragstart = e => {
-        if (d.classList.contains("disabled")) e.preventDefault();
-        else e.dataTransfer.setData("text", p.term);
-      };
-      gameDiv.appendChild(d);
-      termEls[p.term] = d;
-    });
+    // terms + boxes
+    const termEls={};
+    [...pairs].sort(()=>Math.random()-.5).forEach(p=>{
+      const d=document.createElement("div");d.className="term";d.draggable=true;d.textContent=p.term;d.id="t-"+p.term.replace(/\s+/g,"-");d.ondragstart=e=>{if(d.classList.contains("disabled"))e.preventDefault();else e.dataTransfer.setData("text",p.term);};arena.appendChild(d);termEls[p.term]=d;});
 
-    [...pairs].sort(() => Math.random() - 0.5).forEach(({term,definition}) => {
-      const box = document.createElement("div");
-      box.className = "box";
-      box.textContent = definition;
-      box.ondragover = e => e.preventDefault();
-      box.ondrop = e => {
-        e.preventDefault();
-        const dragged = e.dataTransfer.getData("text");
-        if (dragged === term) {
-          score++; matched++;
-          container.querySelector("#score").textContent = score;
-          box.classList.add("correct");
-          box.textContent = `${dragged} ✅`;
-          document.getElementById(`term-${dragged.replace(/\s+/g,"-")}`)?.remove();
-          finishCheck();
-        } else {
-          box.classList.add("wrong");
-          const wrongEl = termEls[dragged];
-          if (wrongEl) { wrongEl.classList.add("disabled"); wrongEl.draggable=false; }
-          setTimeout(()=>box.classList.remove("wrong"),600);
-          finishCheck();
-        }
-      };
-      gameDiv.appendChild(box);
-    });
+    [...pairs].sort(()=>Math.random()-.5).forEach(({term,definition})=>{
+      const b=document.createElement("div");b.className="box";b.textContent=definition;b.ondragover=e=>e.preventDefault();b.ondrop=e=>{e.preventDefault();const dr=e.dataTransfer.getData("text");if(dr===term){score++;matched++;cont.querySelector("#sc").textContent=score;b.classList.add("correct");b.textContent=`${dr} ✅`;document.getElementById("t-"+dr.replace(/\s+/g,"-")).remove();chk();}else{b.classList.add("wrong");const w=termEls[dr];if(w){w.classList.add("disabled");w.draggable=false;}setTimeout(()=>b.classList.remove("wrong"),600);chk();}};arena.appendChild(b);});
 
-    /* --- Timer --- */
-    const timerSpan = container.querySelector("#timer");
-    const timerInt  = setInterval(()=>{
-      timeLeft--; timerSpan.textContent = timeLeft;
-      if (timeLeft<=0) finish();
-    },1000);
+    // timer
+    const timer=setInterval(()=>{time--;cont.querySelector("#tm").textContent=time;if(time<=0)finish();},1000);
 
-    container.querySelector(".close-btn").onclick = close;
+    cont.querySelector(".closeBtn").onclick=close;
 
-    function finishCheck() {
-      const remain = [...overlay.querySelectorAll('.term')].filter(el=>!el.classList.contains('disabled'));
-      if (matched===pairs.length || remain.length===0) finish();
-    }
+    function chk(){const remain=[...ov.querySelectorAll('.term')].filter(el=>!el.classList.contains('disabled'));if(matched===pairs.length||remain.length===0)finish();}
 
-    function finish() {
-      clearInterval(timerInt);
-      const disabled = overlay.querySelectorAll('.term.disabled').length;
-      const tokenDelta = score - disabled;
-      if (tokenDelta) addTokens(tokenDelta);
-      alert(`🎉 Game over! You matched ${score}/${pairs.length}.\nTokens ${tokenDelta>=0?'added':'deducted'}: ${tokenDelta}`);
-      close();
-    }
+    function finish(){clearInterval(timer);const disabled=ov.querySelectorAll('.term.disabled').length;const delta=score-disabled;if(delta)addTokens(delta);saveLeaderboard(score);alert(`🎉 Game over! You matched ${score}/${pairs.length}.\nTokens ${delta>=0?'added':'deducted'}: ${delta}\n\n🏆 Leaderboard:\n${formattedLeaderboard()}`);close();if(confirm("Take a quick quiz based on these terms?")){launchQuiz(pairs);} }
 
-    function close() {
-      overlay.remove();
-    }
+    function close(){ov.remove();}
   }
 
-  /* ------------------------------ INIT --------------------------------- */
-  ensureLauncherBtn();
+  /* -------------------------- QUIZ MODULE ---------------------- */
+  function launchQuiz(pairs){
+    const qov=document.createElement("div");qov.style.cssText="display:flex;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:10004;align-items:center;justify-content:center;";document.body.appendChild(qov);
+    let idx=0,qscore=0;
+    showQ();
+    function showQ(){if(idx>=pairs.length)return finishQuiz();const {term}=pairs[idx];const defs=pairs.map(p=>p.definition);const correct=pairs[idx].definition;const opts=[correct];while(opts.length<4){const rand=defs[Math.floor(Math.random()*defs.length)];if(!opts.includes(rand))opts.push(rand);}opts.sort(()=>Math.random()-.5);
+      qov.innerHTML=`<div style="background:#fff;border-radius:16px;padding:28px 24px;max-width:360px;font-family:sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.2);"><h3 style="margin:0 0 12px;">What does <em>${term}</em> mean?</h3>${opts.map(o=>`<button class="opt" style="display:block;width:100%;text-align:left;margin:6px 0;padding:6px 10px;border-radius:6px;border:1px solid #b6c7e6;background:#f4f7ff;cursor:pointer;">${o}</button>`).join("")}<div style="text-align:right;margin-top:12px;font-size:12px;">${idx+1}/${pairs.length}</div></div>`;
+      qov.querySelectorAll('.opt').forEach(btn=>btn.onclick=()=>{if(btn.textContent===correct){btn.style.background="#d0f0c0";qscore++;}else btn.style.background="#fddede";setTimeout(()=>{idx++;showQ();},400);}); }
+    function finishQuiz(){addTokens(qscore);alert(`✅ Quiz finished! Score: ${qscore}/${pairs.length}.\nTokens added: ${qscore}`);qov.remove();}
+  }
+
+  /* ------------------------ INITIALISE ------------------------- */
+  ensureLauncher();
+  updateTokenBadge();
 })();
 
-  /* --------------------------- INIT ON LOAD ------------------------------ */
-  launchMatchingGame();
-})();
 
     /*************************************************
      *  Attach primary button to page
